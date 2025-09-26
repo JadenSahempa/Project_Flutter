@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lime),
       ),
-      home: const MyHomePage(title: 'First Project Flutter'),
+      home: const MyHomePage(title: 'Jaden’s First Flutter App'),
     );
   }
 }
@@ -104,7 +104,10 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            const Icon(Icons.school, size: 40, color: Colors.blue),
             const Text('Selamat Datang di Aplikasi Pertama Saya!'),
+            const SizedBox(height: 16),
+            const Text('Belajar Git di Week 02'),
             // Text(
             //   '$_counter',
             //   style: Theme.of(context).textTheme.headlineMedium,
