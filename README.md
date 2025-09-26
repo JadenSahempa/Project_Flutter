@@ -15,3 +15,15 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+# WEEK 01 Setup
+
+Perubahan yang dilakukan
+- Create Project Flutter.
+- Memodifikasi main.dart
+
+# WEEK 02 Setup
+
+Perubahan yang dilakukan di minggu ini:
+- Belajar Git 
+- Belajar Github
+- Buat Branch Setup -> ubah README (dokumentasi Git minggu ini) -> PR
