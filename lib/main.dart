@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'week_3/screens/home_screen.dart';
 import 'week_3/screens/login_screen.dart';
 import 'week_3/screens/register_screen.dart';
+import 'week_3/widgets/page_card.dart';
+
+import 'week_4/screens/edit_profile.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,6 +43,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const HomeScreen(), // dashboard
+        '/editProfile': (context) => const EditProfileScreen(),
       },
     );
   }
@@ -95,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Padding(
+      body: Container(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           // Center is a layout widget. It takes a single child and positions it
@@ -121,49 +125,25 @@ class _MyHomePageState extends State<MyHomePage> {
               const Text('Selamat Datang di Aplikasi Pertama Saya!'),
               const SizedBox(height: 16),
               const Text('Belajar Layout and Widget di Week 02'),
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ListTile(
-                  title: const Text('Login Page'),
-                  subtitle: const Text('Klik untuk masuk ke halaman Login'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.pushNamed(context, '/login');
-                  },
-                ),
+              PageCard(
+                title: 'Login Page',
+                subtitle: 'Klik untuk masuk ke halaman Login',
+                route: '/login',
               ),
-
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ListTile(
-                  title: const Text('Register Page'),
-                  subtitle: const Text('Klik untuk membuat akun baru'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.pushNamed(context, '/register');
-                  },
-                ),
+              PageCard(
+                title: 'Register Page',
+                subtitle: 'Klik untuk membuat akun baru',
+                route: '/register',
               ),
-
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ListTile(
-                  title: const Text('Dashboard Page'),
-                  subtitle: const Text('Klik untuk masuk ke Dashboard utama'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.pushNamed(context, '/home');
-                  },
-                ),
+              PageCard(
+                title: 'Dashboard Page',
+                subtitle: 'Klik untuk masuk ke Dashboard utama',
+                route: '/home',
+              ),
+              PageCard(
+                title: 'Edit Profile Page',
+                subtitle: 'Klik untuk masuk ke Edit Profil',
+                route: '/editProfile',
               ),
             ],
           ),

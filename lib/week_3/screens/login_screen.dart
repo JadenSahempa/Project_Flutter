@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key}); // pakai stateful kalau nanti ada form
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _emailC = TextEditingController();
   final _passC = TextEditingController();
 
-  // Variabel untuk show/hide password
   bool _obscure = true;
+  bool _isChecked = false;
+  String? _captchaError;
 
   @override
   void dispose() {
@@ -21,198 +23,273 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  bool _isValidEmail(String v) {
+    final re = RegExp(r'^[\w\.\-]+@([\w\-]+\.)+[a-zA-Z]{2,}$');
+    return re.hasMatch(v.trim());
+  }
+
+  void _onSubmit() {
+    final form = _formKey.currentState!;
+    final fieldsOk = form.validate();
+
+    if (!fieldsOk) {
+      // email/password invalid
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('⚠️ Periksa kembali input kamu')),
+      );
+      return;
+    }
+
+    // cek captcha
+    if (!_isChecked) {
+      setState(() {
+        _captchaError = 'Harap centang "I\'m not a robot"';
+      });
+      // beri feedback
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('⚠️ Centang "I\'m not a robot" dulu ya')),
+      );
+      return;
+    }
+
+    // if semua valid
+    setState(() => _captchaError = null);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✅ Login valid, lanjut ke halaman berikut!'),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Image.asset(
-                  'lib/assets/images/luarsekolah.png',
-                  height: 50,
-                ),
-              ),
-
-              Align(
-                alignment: Alignment.centerLeft,
-                child: const Text(
-                  "Masuk ke Akunmu Untuk Lanjut Akses ke Luarsekolah",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              Align(
-                alignment: Alignment.centerLeft,
-                child: const Text(
-                  "Satu akun untuk akses Luarsekolah dan BelajarBekerja",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              OutlinedButton.icon(
-                onPressed: () {},
-                icon: Image.asset('lib/assets/images/google.png', height: 20),
-                label: const Text(
-                  "Masuk dengan Google",
-                  style: TextStyle(color: Colors.black),
-                ),
-                style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              Row(
-                children: const [
-                  Expanded(child: Divider()),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text("atau gunakan email"),
-                  ),
-                  Expanded(child: Divider()),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Email'),
-              ),
-              const SizedBox(height: 6),
-
-              TextField(
-                controller: _emailC,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  hintText: 'mail@mail.xo',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 14,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Password'),
-              ),
-              const SizedBox(height: 6),
-
-              TextField(
-                controller: _passC,
-                obscureText: _obscure,
-                decoration: InputDecoration(
-                  hintText: 'Masukkan password',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 14,
-                  ),
-                  suffixIcon: IconButton(
-                    onPressed: () => setState(() => _obscure = !_obscure),
-                    icon: Icon(
-                      _obscure ? Icons.visibility : Icons.visibility_off,
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode
+                .disabled, // error hanya muncul saat tombol ditekan
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Image.asset(
+                      'lib/assets/images/luarsekolah.png',
+                      height: 50,
                     ),
                   ),
-                ),
-              ),
-
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () {},
-                  style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                  child: const Text('Lupa password'),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              Container(
-                width: double.infinity,
-                height: 80,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: Row(
-                  children: [
-                    Checkbox(value: false, onChanged: (_) {}),
-                    const SizedBox(width: 8),
-                    const Text("I'm not a robot"),
-                    const Spacer(),
-                    Container(
-                      width: 90,
-                      height: 40,
-                      alignment: Alignment.center,
-                      color: Colors.white,
-                      child: const Text('reCAPTCHA'),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "Masuk ke Akunmu Untuk Lanjut Akses ke Luarsekolah",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  onPressed: () {},
-                  child: const Text('Masuk'),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.blue),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Satu akun untuk akses Luarsekolah dan BelajarBekerja",
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
-                  onPressed: () {},
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Text("👋  Belum punya akun? "),
-                      Text(
-                        "Daftar Sekarang",
-                        style: TextStyle(color: Colors.blue),
+                  const SizedBox(height: 20),
+
+                  OutlinedButton.icon(
+                    onPressed: () {},
+                    icon: Image.asset(
+                      'lib/assets/images/google.png',
+                      height: 20,
+                    ),
+                    label: const Text(
+                      "Masuk dengan Google",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
+                      minimumSize: const Size(double.infinity, 50),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  const Row(
+                    children: [
+                      Expanded(child: Divider()),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Text("atau gunakan email"),
+                      ),
+                      Expanded(child: Divider()),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 16),
+
+                  const Text('Email'),
+                  const SizedBox(height: 6),
+                  TextFormField(
+                    controller: _emailC,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      hintText: 'user@example.com',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return 'Email wajib diisi';
+                      }
+                      if (!_isValidEmail(v)) {
+                        return 'Format email tidak valid';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  const Text('Password'),
+                  const SizedBox(height: 6),
+                  TextFormField(
+                    controller: _passC,
+                    obscureText: _obscure,
+                    decoration: InputDecoration(
+                      hintText: 'Masukkan password',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
+                      suffixIcon: IconButton(
+                        onPressed: () => setState(() => _obscure = !_obscure),
+                        icon: Icon(
+                          _obscure ? Icons.visibility : Icons.visibility_off,
+                        ),
+                      ),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return 'Password wajib diisi';
+                      }
+                      if (v.trim().length < 6) {
+                        return 'Minimal 6 karakter';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: () {},
+                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      child: const Text('Lupa password'),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // recapta checklist
+                  Container(
+                    width: double.infinity,
+                    height: 80,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: _captchaError == null
+                            ? Colors.grey.shade300
+                            : Colors.red.shade300, // merah saat error
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: _isChecked,
+                          onChanged: (v) {
+                            setState(() {
+                              _isChecked = v ?? false;
+                              _captchaError =
+                                  null; // hapus error saat user mencentang/ubah
+                            });
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        const Text("I'm not a robot"),
+                        const Spacer(),
+                        Container(
+                          width: 90,
+                          height: 40,
+                          alignment: Alignment.center,
+                          color: Colors.white,
+                          child: const Text('reCAPTCHA'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (_captchaError != null) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      _captchaError!,
+                      style: TextStyle(
+                        color: Colors.red.shade700,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 16),
+
+                  // submit button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _onSubmit,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text('Masuk'),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.blue),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () {},
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("👋  Belum punya akun? "),
+                          Text(
+                            "Daftar Sekarang",
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
