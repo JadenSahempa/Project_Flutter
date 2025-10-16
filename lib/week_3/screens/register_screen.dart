@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:luar_sekolah_lms/week_4/utils/validators.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -33,21 +34,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _numberC.dispose();
     _passC.dispose();
     super.dispose();
-  }
-
-  // ========= Helpers (validator logic) =========
-  bool _isValidEmail(String v) {
-    final re = RegExp(r'^[\w\.\-]+@([\w\-]+\.)+[a-zA-Z]{2,}$');
-    return re.hasMatch(v.trim());
-  }
-
-  bool _isValidPhone(String v) {
-    final s = v.trim();
-    // contoh rule: harus mulai '62', hanya digit, panjang 10..15
-    if (!s.startsWith('62')) return false;
-    if (!RegExp(r'^\d+$').hasMatch(s)) return false;
-    if (s.length < 10 || s.length > 15) return false;
-    return true;
   }
 
   void _onSubmit() {
@@ -173,15 +159,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         vertical: 14,
                       ),
                     ),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) {
-                        return 'Nama wajib diisi';
-                      }
-                      if (v.trim().length < 3) {
-                        return 'Minimal 3 karakter';
-                      }
-                      return null;
-                    },
+                    validator: (v) =>
+                        Validators.requiredText(v, field: 'Nama') ??
+                        Validators.minLen(v, 3, field: 'Nama'),
                   ),
 
                   const SizedBox(height: 16),
@@ -205,15 +185,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         vertical: 14,
                       ),
                     ),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) {
-                        return 'Email wajib diisi';
-                      }
-                      if (!_isValidEmail(v)) {
-                        return 'Format email tidak valid';
-                      }
-                      return null;
-                    },
+                    validator: Validators.validateEmail,
                   ),
 
                   const SizedBox(height: 16),
@@ -237,15 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         vertical: 14,
                       ),
                     ),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) {
-                        return 'Nomor WA wajib diisi';
-                      }
-                      if (!_isValidPhone(v)) {
-                        return 'Nomor harus mulai 62, angka saja, 10–15 digit';
-                      }
-                      return null;
-                    },
+                    validator: Validators.validatePhone,
                   ),
 
                   const SizedBox(height: 16),
@@ -275,15 +239,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) {
-                        return 'Password wajib diisi';
-                      }
-                      if (v.trim().length < 6) {
-                        return 'Minimal 6 karakter';
-                      }
-                      return null;
-                    },
+                    validator: Validators.validatePassword,
                   ),
 
                   const SizedBox(height: 16),
@@ -356,29 +312,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 12),
 
                   // ===== Terms & CTA Masuk =====
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text(
-                        'Dengan mendaftar di Luarsekolah, kamu menyetujui ',
-                        style: TextStyle(color: Colors.grey.shade700),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  SizedBox(
+                    width: double.infinity,
+                    child: Wrap(
+                      alignment: WrapAlignment.start,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          'Dengan mendaftar di Luarsekolah, kamu menyetujui ',
+                          style: TextStyle(color: Colors.grey.shade700),
                         ),
-                        child: const Text(
-                          'syarat dan ketentuan kami',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
+                        TextButton(
+                          onPressed: () {},
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
+                          child: const Text(
+                            'syarat dan ketentuan kami',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
 
