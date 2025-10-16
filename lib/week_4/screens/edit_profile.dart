@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:luar_sekolah_lms/week_4/utils/validators.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -226,22 +227,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               vertical: 12,
                             ),
                           ),
-                          validator: (v) {
-                            if (v == null || v.trim().isEmpty) {
-                              return 'Nama wajib diisi';
-                            }
-                            if (v.trim().length < 3) {
-                              return 'Minimal 3 karakter';
-                            }
-                            return null;
-                          },
+                          validator: (v) =>
+                              Validators.requiredText(v, field: 'Nama') ??
+                              Validators.minLen(v, 3, field: 'Nama'),
                         ),
 
                         const SizedBox(height: 14),
 
                         // Tanggal Lahir
                         const Text('Tanggal Lahir'),
+
                         const SizedBox(height: 6),
+
                         TextFormField(
                           controller: _dobC,
                           readOnly: true,
@@ -259,49 +256,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             final now = DateTime.now();
                             final picked = await showDatePicker(
                               context: context,
-                              initialDate: DateTime(
-                                now.year - 18,
-                                now.month,
-                                now.day,
-                              ),
+                              initialDate: DateUtilsExt.suggestInitial18yo(),
                               firstDate: DateTime(1900),
                               lastDate: now,
                             );
                             if (picked != null) {
-                              _dobC.text =
-                                  '${picked.day.toString().padLeft(2, '0')}-'
-                                  '${picked.month.toString().padLeft(2, '0')}-'
-                                  '${picked.year}';
+                              _dobC.text = DateUtilsExt.toDdMMyyyy(picked);
                               setState(() {});
                             }
                           },
-                          validator: (v) {
-                            if (v == null || v.trim().isEmpty) {
-                              return 'Tanggal lahir wajib diisi';
-                            }
-                            try {
-                              final parts = v.split('-');
-                              final d = int.parse(parts[0]);
-                              final m = int.parse(parts[1]);
-                              final y = int.parse(parts[2]);
-                              final dob = DateTime(y, m, d);
-                              final now = DateTime.now();
-                              if (dob.isAfter(now)) {
-                                return 'Tanggal tidak boleh di masa depan';
-                              }
-                              final minAgeDate = DateTime(
-                                now.year - 18,
-                                now.month,
-                                now.day,
-                              );
-                              if (dob.isAfter(minAgeDate)) {
-                                return 'Minimal usia 18 tahun';
-                              }
-                            } catch (_) {
-                              return 'Format tanggal tidak valid (dd-MM-yyyy)';
-                            }
-                            return null;
-                          },
+                          validator: Validators.dateDdMMyyyy,
                         ),
 
                         const SizedBox(height: 14),
@@ -330,8 +294,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               vertical: 12,
                             ),
                           ),
-                          validator: (v) =>
-                              v == null ? 'Pilih jenis kelamin' : null,
+                          validator: (v) => Validators.requiredDropdown(
+                            v,
+                            field: 'jenis kelamin',
+                          ),
                         ),
 
                         const SizedBox(height: 14),
@@ -369,7 +335,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                           ),
                           validator: (v) =>
-                              v == null ? 'Pilih status pekerjaan' : null,
+                              Validators.jobSelected(v, field: 'jenis kelamin'),
                         ),
 
                         const SizedBox(height: 14),
@@ -387,15 +353,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             alignLabelWithHint: true,
                             contentPadding: EdgeInsets.all(12),
                           ),
-                          validator: (v) {
-                            if (v == null || v.trim().isEmpty) {
-                              return 'Alamat wajib diisi';
-                            }
-                            if (v.trim().length < 10) {
-                              return 'Alamat terlalu singkat';
-                            }
-                            return null;
-                          },
+                          validator: (v) =>
+                              Validators.requiredText(v, field: 'Alamat') ??
+                              Validators.minLen(v, 10, field: 'Alamat'),
                         ),
 
                         const SizedBox(height: 20),

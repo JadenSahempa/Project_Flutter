@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:luar_sekolah_lms/week_4/utils/validators.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,11 +22,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _emailC.dispose();
     _passC.dispose();
     super.dispose();
-  }
-
-  bool _isValidEmail(String v) {
-    final re = RegExp(r'^[\w\.\-]+@([\w\-]+\.)+[a-zA-Z]{2,}$');
-    return re.hasMatch(v.trim());
   }
 
   void _onSubmit() {
@@ -83,16 +79,20 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 50,
                     ),
                   ),
+
                   const SizedBox(height: 16),
+
                   const Text(
                     "Masuk ke Akunmu Untuk Lanjut Akses ke Luarsekolah",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
+
                   const Text(
                     "Satu akun untuk akses Luarsekolah dan BelajarBekerja",
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
+
                   const SizedBox(height: 20),
 
                   OutlinedButton.icon(
@@ -112,6 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       minimumSize: const Size(double.infinity, 50),
                     ),
                   ),
+
                   const SizedBox(height: 20),
 
                   const Row(
@@ -141,15 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         vertical: 14,
                       ),
                     ),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) {
-                        return 'Email wajib diisi';
-                      }
-                      if (!_isValidEmail(v)) {
-                        return 'Format email tidak valid';
-                      }
-                      return null;
-                    },
+                    validator: Validators.validateEmail,
                   ),
                   const SizedBox(height: 16),
 
@@ -170,19 +163,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       suffixIcon: IconButton(
                         onPressed: () => setState(() => _obscure = !_obscure),
                         icon: Icon(
-                          _obscure ? Icons.visibility : Icons.visibility_off,
+                          _obscure ? Icons.visibility_off : Icons.visibility,
                         ),
                       ),
                     ),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) {
-                        return 'Password wajib diisi';
-                      }
-                      if (v.trim().length < 6) {
-                        return 'Minimal 6 karakter';
-                      }
-                      return null;
-                    },
+                    validator: Validators.validatePassword,
                   ),
 
                   Align(
