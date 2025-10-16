@@ -335,7 +335,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               color: Colors.blue,
                               decoration: TextDecoration.underline,
                             ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
