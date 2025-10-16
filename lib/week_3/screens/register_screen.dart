@@ -336,13 +336,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               decoration: TextDecoration.underline,
                             ),
                           ),
-                          child: const Text(
-                            'syarat dan ketentuan kami',
-                            style: TextStyle(
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ],
                         ),
                       ],
                     ),
