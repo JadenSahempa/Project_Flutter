@@ -10,6 +10,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _pageC = PageController();
   int _page = 0;
+  int _currentIndex = 0;
 
   @override
   void dispose() {
@@ -961,30 +962,71 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: SizedBox(
-                  height: 46,
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.grey.shade500),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      textStyle: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    onPressed: () {
-                      Navigator.popUntil(context, (route) => route.isFirst);
-                    },
-                    child: const Text('Kembali'),
-                  ),
-                ),
-              ),
+              // Padding(
+              //   padding: EdgeInsets.all(16),
+              //   child: SizedBox(
+              //     height: 46,
+              //     width: double.infinity,
+              //     child: OutlinedButton(
+              //       style: OutlinedButton.styleFrom(
+              //         side: BorderSide(color: Colors.grey.shade500),
+              //         shape: RoundedRectangleBorder(
+              //           borderRadius: BorderRadius.circular(10),
+              //         ),
+              //         textStyle: const TextStyle(fontWeight: FontWeight.w700),
+              //       ),
+              //       onPressed: () {
+              //         Navigator.popUntil(context, (route) => route.isFirst);
+              //       },
+              //       child: const Text('Kembali'),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
       ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   currentIndex: _currentIndex,
+      //   onTap: (index) {
+      //     setState(() {
+      //       _currentIndex = index;
+      //     });
+      //   },
+      //   // Custom styling
+      //   type: BottomNavigationBarType.shifting,
+      //   selectedItemColor: Colors.purple,
+      //   unselectedItemColor: Colors.grey,
+      //   showUnselectedLabels: true,
+      //   elevation: 8,
+      //   backgroundColor: Colors.white,
+      //   items: [
+      //     BottomNavigationBarItem(
+      //       icon: const Icon(Icons.home),
+      //       activeIcon: const Icon(Icons.home, size: 30),
+      //       label: 'Home',
+      //       backgroundColor: Colors.purple.shade50,
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: const Icon(Icons.search),
+      //       activeIcon: const Icon(Icons.search, size: 30),
+      //       label: 'Search',
+      //       backgroundColor: Colors.blue.shade50,
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: const Icon(Icons.favorite),
+      //       activeIcon: const Icon(Icons.favorite, size: 30),
+      //       label: 'Favorites',
+      //       backgroundColor: Colors.pink.shade50,
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: const Icon(Icons.person),
+      //       activeIcon: const Icon(Icons.person, size: 30),
+      //       label: 'Profile',
+      //       backgroundColor: Colors.teal.shade50,
+      //     ),
+      //   ],
+      // ),
     );
   }
 }

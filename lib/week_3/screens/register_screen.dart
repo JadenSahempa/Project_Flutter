@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:luar_sekolah_lms/week_3/screens/login_screen.dart';
 import 'package:luar_sekolah_lms/week_4/utils/validators.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -369,7 +370,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               ),
                               TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const LoginScreen(),
+                                    ),
+                                  );
+                                },
                                 style: TextButton.styleFrom(
                                   padding: EdgeInsets.zero,
                                   minimumSize: Size.zero,

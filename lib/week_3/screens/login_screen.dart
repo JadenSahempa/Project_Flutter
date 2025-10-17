@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:luar_sekolah_lms/main_example.dart';
 import 'package:luar_sekolah_lms/week_4/utils/validators.dart';
+import 'package:luar_sekolah_lms/router/app_router.dart';
+import 'package:luar_sekolah_lms/utils/shared_helper.dart';
+import 'package:luar_sekolah_lms/week_3/screens/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscure = true;
   bool _isChecked = false;
   String? _captchaError;
+  bool _loading = false;
 
   @override
   void dispose() {
@@ -24,43 +29,88 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _onSubmit() {
+  void _onSubmit() async {
     final form = _formKey.currentState!;
     final fieldsOk = form.validate();
 
     if (!fieldsOk) {
-      // email/password invalid
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('⚠️ Periksa kembali input kamu')),
       );
       return;
     }
 
-    // cek captcha
     if (!_isChecked) {
       setState(() {
         _captchaError = 'Harap centang "I\'m not a robot"';
       });
-      // beri feedback
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('⚠️ Centang "I\'m not a robot" dulu ya')),
       );
       return;
     }
 
-    // if semua valid
-    setState(() => _captchaError = null);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('✅ Login valid, lanjut ke halaman berikut!'),
-      ),
-    );
+    // Lolos validasi & captcha
+    setState(() {
+      _captchaError = null;
+      _loading = true;
+    });
+
+    try {
+      // Simpan dummy user di SharedPreferences
+      final email = _emailC.text.trim();
+      final nameFromEmail = email.contains('@')
+          ? email.split('@').first
+          : 'User';
+
+      await StorageHelper.instance.loginDummy(
+        name: nameFromEmail.isEmpty ? 'User' : nameFromEmail,
+        email: email.isEmpty ? '-' : email,
+      );
+
+      if (!mounted) return;
+
+      // Masuk ke MainShell tanpa bisa back ke login
+      AppRouter.goToShell(context); // pushReplacementNamed('/shell')
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Terjadi kesalahan saat login')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.teal),
+              child: Text(
+                'Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Pages'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MainExample()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -237,14 +287,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _onSubmit,
+                      onPressed: _loading ? null : _onSubmit,
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      child: const Text('Masuk'),
+                      child: _loading
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Masuk'),
                     ),
                   ),
 
@@ -259,7 +318,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterScreen(),
+                          ),
+                        );
+                      },
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -272,6 +338,21 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  // Card(
+                  //   elevation: 4,
+                  //   shape: RoundedRectangleBorder(
+                  //     borderRadius: BorderRadius.circular(12),
+                  //   ),
+                  //   child: ListTile(
+                  //     title: const Text('Pages'),
+                  //     subtitle: const Text('Lihat daftar halaman demo'),
+                  //     trailing: const Icon(Icons.arrow_forward_ios),
+                  //     onTap: () {
+                  //       Navigator.pushNamed(context, '/pages');
+                  //     },
+                  //   ),
+                  // ),
                 ],
               ),
             ),
