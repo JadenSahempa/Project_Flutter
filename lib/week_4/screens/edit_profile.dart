@@ -62,7 +62,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         CircleAvatar(
                           radius: 24,
                           backgroundImage: AssetImage(
-                            'lib/assets/images/person2.jpeg',
+                            'lib/assets/images/person3.jpg',
                           ),
                         ),
                         SizedBox(width: 12),
@@ -132,7 +132,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         const CircleAvatar(
                           radius: 50,
                           backgroundImage: AssetImage(
-                            'lib/assets/images/person2.jpeg',
+                            'lib/assets/images/person3.jpg',
                           ),
                         ),
                         Positioned(
