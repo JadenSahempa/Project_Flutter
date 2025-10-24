@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class KelasTerpopulerScreen extends StatelessWidget {
   const KelasTerpopulerScreen({super.key});
@@ -68,8 +69,9 @@ class _ListKelasTab extends StatelessWidget {
                   height: 42,
                   child: ElevatedButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Tambah Kelas ditekan')),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => TambahKelasScreen()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -393,6 +395,237 @@ class _BadgeFilled extends StatelessWidget {
       ),
     ),
   );
+}
+
+class NewKelasResult {
+  final String nama;
+  final int harga;
+  final String kategori; // 'Prakerja' / 'SPL'
+  // final Uint8List? thumbnail; // bisa ditambah nanti
+  NewKelasResult({
+    required this.nama,
+    required this.harga,
+    required this.kategori,
+  });
+}
+
+class TambahKelasScreen extends StatefulWidget {
+  const TambahKelasScreen({super.key});
+
+  @override
+  State<TambahKelasScreen> createState() => _TambahKelasScreenState();
+}
+
+class _TambahKelasScreenState extends State<TambahKelasScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _namaC = TextEditingController();
+  final _hargaC = TextEditingController();
+  String? _kategori; // 'Prakerja' / 'SPL'
+
+  @override
+  void dispose() {
+    _namaC.dispose();
+    _hargaC.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+
+    final nama = _namaC.text.trim();
+    final harga = int.tryParse(_hargaC.text.trim());
+    if (harga == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Harga tidak valid')));
+      return;
+    }
+    if (_kategori == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Pilih kategori')));
+      return;
+    }
+
+    Navigator.pop(
+      context,
+      NewKelasResult(nama: nama, harga: harga, kategori: _kategori!),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Informasi Kelas')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // ==== Kartu berisi form (sesuai mockup) ====
+                Card(
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text(
+                            'Informasi Kelas',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Nama Kelas
+                          const Text('Nama Kelas'),
+                          const SizedBox(height: 6),
+                          TextFormField(
+                            controller: _namaC,
+                            decoration: const InputDecoration(
+                              hintText: 'e.g Marketing Communication',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Nama wajib diisi'
+                                : null,
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Harga Kelas (angka)
+                          const Text('Harga Kelas'),
+                          const SizedBox(height: 6),
+                          TextFormField(
+                            controller: _hargaC,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            decoration: const InputDecoration(
+                              hintText: 'e.g 1000000',
+                              helperText: 'Masukkan dalam bentuk angka',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Harga wajib diisi'
+                                : null,
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Kategori Kelas
+                          const Text('Kategori Kelas'),
+                          const SizedBox(height: 6),
+                          DropdownButtonFormField<String>(
+                            value: _kategori,
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'Prakerja',
+                                child: Text('Prakerja'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'SPL',
+                                child: Text('SPL'),
+                              ),
+                            ],
+                            onChanged: (v) => setState(() => _kategori = v),
+                            decoration: const InputDecoration(
+                              hintText: 'Pilih Prakerja atau SPL',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (v) =>
+                                v == null ? 'Kategori wajib dipilih' : null,
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Thumbnail Kelas (placeholder upload)
+                          const Text('Thumbnail Kelas'),
+                          const SizedBox(height: 6),
+                          InkWell(
+                            onTap: () {
+                              // TODO: implement image picker/file picker
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Upload Foto (coming soon)'),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              height: 110,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.black12),
+                              ),
+                              child: const Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.image_outlined),
+                                    SizedBox(width: 8),
+                                    Text('Upload Foto'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Simpan Perubahan
+                          SizedBox(
+                            height: 44,
+                            child: ElevatedButton(
+                              onPressed: _submit,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF116E55),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text('Simpan Perubahan'),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Kembali
+                          SizedBox(
+                            height: 44,
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.pop(context),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFF1EC38B),
+                                side: const BorderSide(
+                                  color: Color(0xFF1EC38B),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text('Kembali'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _BadgeOutlined extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:luar_sekolah_lms/week_4/screens/edit_profile.dart';
-import 'main_shell.dart';
+import '../../main_shell.dart';
 import 'package:luar_sekolah_lms/router/app_router.dart';
 import 'package:luar_sekolah_lms/utils/shared_helper.dart';
 

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
 import 'package:luar_sekolah_lms/week_3/screens/home_screen.dart';
-import 'kelasku.dart';
+import 'week_5/screens/kelasku.dart';
 // import 'koin_ls.dart';
-import 'akun.dart';
-import 'kelas_terpopuler_screens.dart';
+import 'week_5/screens/akun.dart';
+import 'week_5/screens/kelas_terpopuler_screens.dart';
+import 'package:luar_sekolah_lms/week_6/screens/todo_crud_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -26,6 +27,7 @@ class _MainShellState extends State<MainShell> {
     KelaskuScreen(),
     // KoinLSScreen(),
     AkunScreen(),
+    TodoCrudScreen(),
   ];
 
   @override
@@ -81,6 +83,7 @@ class _MainShellState extends State<MainShell> {
             activeIcon: Icon(Iconsax.video5, size: 28),
             label: 'Kelasku',
           ),
+
           // BottomNavigationBarItem(
           //   icon: Icon(Iconsax.coin),
           //   activeIcon: Icon(Iconsax.coin5, size: 28),
@@ -90,6 +93,11 @@ class _MainShellState extends State<MainShell> {
             icon: Icon(Iconsax.user),
             activeIcon: Icon(Iconsax.user_square, size: 28),
             label: 'Akun',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Iconsax.video),
+            activeIcon: Icon(Iconsax.video5, size: 28),
+            label: 'todos',
           ),
         ],
       ),
