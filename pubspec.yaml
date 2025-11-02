@@ -36,8 +36,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   iconsax: ^0.0.8
   shared_preferences: ^2.3.2
+  # Week 6: Alternative HTTP client with more features
+  dio: ^5.7.0
   http: ^1.2.2
 
+  # Week 7: GetX state management framework
+  get: ^4.6.6
 dev_dependencies:
   flutter_test:
     sdk: flutter
