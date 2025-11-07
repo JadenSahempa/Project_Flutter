@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:luar_sekolah_lms/router/app_router.dart';
 import 'package:luar_sekolah_lms/utils/shared_helper.dart';
-import 'package:luar_sekolah_lms/week_7/services/course_api_service.dart';
-import 'package:get/get.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await StorageHelper.init(); // WAJIB
-  Get.put<CourseApiService>(CourseApiService());
   runApp(const MyApp());
 }
 
@@ -16,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loggedIn = StorageHelper.instance.isLoggedIn();
-    return GetMaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Luarsekolah LMS',
       theme: ThemeData(primarySwatch: Colors.purple),
