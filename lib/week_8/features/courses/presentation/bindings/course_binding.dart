@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:luar_sekolah_lms/week_8/features/courses/domain/use_cases/get_course_by_id_use_case.dart';
 import '../../data/providers/course_api_service.dart';
 import '../../data/repositories/course_repository_impl.dart';
 import '../../domain/use_cases/get_courses_use_case.dart';
@@ -11,8 +12,8 @@ import '../controllers/course_controller.dart';
 class CourseBinding extends Bindings {
   @override
   void dependencies() {
-    const baseUrl = 'https://ls-lms.zoidify.my.id/'; // GANTI sesuai API kamu
-    const token = 'default-token'; // GANTI dengan Bearer token kamu
+    const baseUrl = 'https://ls-lms.zoidify.my.id/'; // base url
+    const token = 'default-token'; // token
 
     final api = CourseApiService(
       client: http.Client(),
@@ -23,6 +24,7 @@ class CourseBinding extends Bindings {
 
     Get.put(GetCoursesUseCase(repo));
     Get.put(CreateCourseUseCase(repo));
+    Get.put(GetCourseByIdUseCase(repo));
     Get.put(UpdateCourseUseCase(repo));
     Get.put(DeleteCourseUseCase(repo));
 

@@ -56,8 +56,9 @@ class _ListKelasTab extends StatelessWidget {
 
     return SafeArea(
       child: Obx(() {
-        if (c.loading.value)
+        if (c.loading.value) {
           return const Center(child: CircularProgressIndicator());
+        }
 
         return ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -168,7 +169,7 @@ class _KelasCard extends StatelessWidget {
                 final r = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => EditKelasScreen(title: title),
+                    builder: (_) => EditKelasScreen(courseId: id),
                   ),
                 );
                 if (r is NewKelasResult) {

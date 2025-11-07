@@ -28,6 +28,10 @@ class CourseRepositoryImpl implements CourseRepository {
   }
 
   @override
+  Future<Course> getCourseById(String id) async =>
+      (await api.getCourseById(id)).toEntity();
+
+  @override
   Future<Course> updateCourse({
     required String id,
     required String title,

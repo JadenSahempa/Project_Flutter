@@ -18,11 +18,8 @@ class CourseApiService {
     'Accept': 'application/json',
   };
 
-  Uri _u(String path, [Map<String, dynamic>? query]) =>
-      Uri.parse(baseUrl).replace(
-        path: path,
-        queryParameters: query?.map((k, v) => MapEntry(k, '$v')),
-      );
+  Uri _u(String path) =>
+      Uri.parse('$baseUrl${path.startsWith('/') ? '' : '/'}$path');
 
   Future<List<CourseModel>> getCourses() async {
     final r = await _c.get(_u('/api/courses'), headers: _headers);
@@ -34,6 +31,15 @@ class CourseApiService {
         ? body
         : (body['courses'] ?? body['data'] ?? []);
     return (list as List).map((e) => CourseModel.fromJson(e)).toList();
+  }
+
+  Future<CourseModel> getCourseById(String id) async {
+    final r = await _c.get(_u('/api/course/$id'), headers: _headers);
+    if (r.statusCode < 200 || r.statusCode >= 300) {
+      throw Exception('GET /courses/$id gagal: ${r.statusCode}\n${r.body}');
+    }
+    final m = jsonDecode(r.body) as Map<String, dynamic>;
+    return CourseModel.fromJson(m);
   }
 
   Future<CourseModel> createCourse({
