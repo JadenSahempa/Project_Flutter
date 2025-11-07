@@ -37,6 +37,9 @@ dependencies:
   iconsax: ^0.0.8
   shared_preferences: ^2.3.2
   http: ^1.2.2
+  # Week 7: GetX state management framework
+  get: ^4.6.6
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:

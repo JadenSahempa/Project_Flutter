@@ -4,7 +4,7 @@ import 'week_3/screens/home_screen.dart';
 import 'week_3/screens/login_screen.dart';
 import 'week_3/screens/register_screen.dart';
 import 'week_3/widgets/page_card.dart';
-import 'week_5/screens/kelas_terpopuler_screens.dart';
+import 'package:luar_sekolah_lms/week_8/features/courses/presentation/pages/kelas_terpopuler_screen.dart';
 
 import 'week_4/screens/edit_profile.dart';
 
