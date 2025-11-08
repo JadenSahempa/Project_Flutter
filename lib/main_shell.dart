@@ -5,8 +5,7 @@ import 'package:luar_sekolah_lms/week_3/screens/home_screen.dart';
 import 'week_5/screens/kelasku.dart';
 // import 'koin_ls.dart';
 import 'week_5/screens/akun.dart';
-import 'week_8/features/courses/presentation/pages/kelas_terpopuler_screen.dart';
-// import 'week_5/screens/kelas_terpopuler_screens.dart';
+import 'week_7/presentation/screens/kelas_terpopuler_screens.dart';
 import 'package:luar_sekolah_lms/week_6/screens/todo_crud_screen.dart';
 
 class MainShell extends StatefulWidget {
