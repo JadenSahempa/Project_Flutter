@@ -9,7 +9,8 @@ class EditKelasScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = Get.put(CourseEditController(courseId: courseId));
+    // ✅ controller sudah disediakan oleh Binding saat Get.to(...)
+    final c = Get.find<CourseEditController>();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Informasi Kelas')),
@@ -62,13 +63,10 @@ class EditKelasScreen extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-
                         const SizedBox(height: 16),
 
                         const Text('Nama Kelas'),
-
                         const SizedBox(height: 6),
-
                         TextFormField(
                           controller: c.namaC,
                           decoration: const InputDecoration(
@@ -81,11 +79,8 @@ class EditKelasScreen extends StatelessWidget {
                         ),
 
                         const SizedBox(height: 16),
-
                         const Text('Harga Kelas'),
-
                         const SizedBox(height: 6),
-
                         TextFormField(
                           controller: c.hargaC,
                           keyboardType: const TextInputType.numberWithOptions(
@@ -106,12 +101,10 @@ class EditKelasScreen extends StatelessWidget {
                               ? 'Harga wajib diisi'
                               : null,
                         ),
+
                         const SizedBox(height: 16),
-
                         const Text('Kategori (tag)'),
-
                         const SizedBox(height: 6),
-
                         Obx(
                           () => Wrap(
                             spacing: 8,
@@ -121,7 +114,7 @@ class EditKelasScreen extends StatelessWidget {
                                 label: 'Prakerja',
                                 selected: c.kategori.contains('prakerja'),
                                 onTap: () {
-                                  final k = 'prakerja';
+                                  const k = 'prakerja';
                                   c.kategori.contains(k)
                                       ? c.kategori.remove(k)
                                       : c.kategori.add(k);
@@ -131,7 +124,7 @@ class EditKelasScreen extends StatelessWidget {
                                 label: 'SPL',
                                 selected: c.kategori.contains('spl'),
                                 onTap: () {
-                                  final k = 'spl';
+                                  const k = 'spl';
                                   c.kategori.contains(k)
                                       ? c.kategori.remove(k)
                                       : c.kategori.add(k);
@@ -142,11 +135,8 @@ class EditKelasScreen extends StatelessWidget {
                         ),
 
                         const SizedBox(height: 16),
-
                         const Text('Rating (opsional, contoh 4.5)'),
-
                         const SizedBox(height: 6),
-
                         TextFormField(
                           controller: c.ratingC,
                           keyboardType: const TextInputType.numberWithOptions(
@@ -162,12 +152,10 @@ class EditKelasScreen extends StatelessWidget {
                             border: OutlineInputBorder(),
                           ),
                         ),
+
                         const SizedBox(height: 16),
-
                         const Text('Thumbnail URL (opsional)'),
-
                         const SizedBox(height: 6),
-
                         TextFormField(
                           controller: c.thumbC,
                           decoration: const InputDecoration(
@@ -177,7 +165,6 @@ class EditKelasScreen extends StatelessWidget {
                         ),
 
                         const SizedBox(height: 20),
-
                         SizedBox(
                           height: 44,
                           child: ElevatedButton(
@@ -193,7 +180,6 @@ class EditKelasScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 10),
-
                         SizedBox(
                           height: 44,
                           child: OutlinedButton(

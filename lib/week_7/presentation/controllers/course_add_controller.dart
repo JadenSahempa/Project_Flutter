@@ -1,72 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:luar_sekolah_lms/week_7/services/course_api_service.dart';
-import 'package:luar_sekolah_lms/week_7/presentation/controllers/course_controller.dart';
-
-class NewKelasResult {
-  final String nama;
-  final int harga;
-  final String kategori;
-  NewKelasResult({
-    required this.nama,
-    required this.harga,
-    required this.kategori,
-  });
-}
+import '../../domain/usecases/create_course.dart';
+import 'course_list_controller.dart';
 
 class CourseAddController extends GetxController {
+  final CreateCourse createCourse;
+  final CourseListController? listController; // opsional untuk refresh
+  CourseAddController({required this.createCourse, this.listController});
+
   final formKey = GlobalKey<FormState>();
   final namaC = TextEditingController();
   final hargaC = TextEditingController();
+  final ratingC = TextEditingController();
+  final thumbC = TextEditingController();
   final kategori = RxnString();
 
-  late final CourseApiService api;
-  CourseController? listCtrl;
-
-  @override
-  void onInit() {
-    super.onInit();
-    api = Get.find<CourseApiService>(); // sudah di-register di main.dart
-    if (Get.isRegistered<CourseController>(tag: 'popular')) {
-      listCtrl = Get.find<CourseController>(tag: 'popular');
-    }
-  }
-
   Future<void> submit() async {
-    if (!(formKey.currentState?.validate() ?? false)) return;
-
+    if (!formKey.currentState!.validate()) return;
     final name = namaC.text.trim();
-    final hargaInt = int.tryParse(hargaC.text.trim());
-    if (hargaInt == null) {
-      Get.snackbar('Validasi', 'Harga tidak valid');
-      return;
-    }
-    final cat = kategori.value;
-    if (cat == null) {
-      Get.snackbar('Validasi', 'Pilih kategori');
-      return;
-    }
+    final parsed = double.tryParse(hargaC.text.trim()) ?? 0;
+    final priceStr = parsed.toStringAsFixed(2);
+    final tags = [kategori.value!]; // ['prakerja'] atau ['spl']
 
-    final priceStr = (hargaInt + .0).toStringAsFixed(2);
     try {
       Get.dialog(
         const Center(child: CircularProgressIndicator()),
         barrierDismissible: false,
       );
-
-      await api.create(
+      await createCourse(
         name: name,
-        categoryTag: [cat.toLowerCase()],
+        categoryTag: tags,
         price: priceStr,
+        rating: ratingC.text.trim(),
+        thumbnail: thumbC.text.trim(),
       );
-
-      // opsional: segarkan list popular di sini (aman untuk paging)
-      await listCtrl?.reload();
-
-      Get.back(); // tutup loading
-      Get.back(result: true); // balik ke tab + beri sinyal sukses
+      await listController?.reload();
+      Get.back();
+      Get.back(result: true);
     } catch (e) {
-      Get.back(); // tutup loading
+      Get.back();
       Get.snackbar('Gagal', e.toString());
     }
   }
@@ -75,6 +47,8 @@ class CourseAddController extends GetxController {
   void onClose() {
     namaC.dispose();
     hargaC.dispose();
+    ratingC.dispose();
+    thumbC.dispose();
     super.onClose();
   }
 }
