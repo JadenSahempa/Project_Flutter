@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:luar_sekolah_lms/week_3/screens/login_screen.dart';
 import 'package:luar_sekolah_lms/main_shell.dart';
+import 'package:luar_sekolah_lms/week_9/presentation/screens/login_screen.dart';
 
 class RouteNames {
   static const login = '/login';

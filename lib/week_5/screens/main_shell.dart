@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
-import 'package:luar_sekolah_lms/week_3/screens/home_screen.dart';
+import 'package:luar_sekolah_lms/week_9/presentation/screens/home_screen.dart';
 import 'kelasku.dart';
 // import 'koin_ls.dart';
 import 'akun.dart';

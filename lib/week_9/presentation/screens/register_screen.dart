@@ -1,72 +1,98 @@
-import 'package:flutter/material.dart';
-import 'package:luar_sekolah_lms/week_3/screens/login_screen.dart';
-import 'package:luar_sekolah_lms/week_4/utils/validators.dart';
+// ignore_for_file: use_build_context_synchronously
 
-class RegisterScreen extends StatefulWidget {
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:luar_sekolah_lms/router/app_router.dart';
+import 'package:luar_sekolah_lms/week_4/utils/validators.dart';
+import 'package:luar_sekolah_lms/week_9/presentation/controller/auth_controller.dart';
+import 'package:luar_sekolah_lms/week_9/presentation/screens/login_screen.dart';
+import 'package:luar_sekolah_lms/week_9/presentation/widgets/app_snackbar.dart';
+
+String mapRegisterError(FirebaseAuthException e) {
+  switch (e.code) {
+    case 'email-already-in-use':
+      return 'Email ini sudah terdaftar. Coba login atau gunakan email lain.';
+    case 'invalid-email':
+      return 'Format email tidak valid.';
+    case 'weak-password':
+      return 'Password terlalu lemah. Gunakan kombinasi huruf dan angka.';
+    case 'operation-not-allowed':
+      return 'Metode email/password belum diaktifkan di Firebase.';
+    default:
+      return 'Gagal registrasi: ${e.message ?? 'Terjadi kesalahan. Coba lagi.'}';
+  }
+}
+
+class RegisterScreen extends GetView<AuthController> {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
-}
-
-class _RegisterScreenState extends State<RegisterScreen> {
-  // Controllers
-  final _nameC = TextEditingController();
-  final _emailC = TextEditingController();
-  final _numberC = TextEditingController();
-  final _passC = TextEditingController();
-
-  // Form key
-  final _formKey = GlobalKey<FormState>();
-
-  // UI states
-  bool _obscure = true;
-  bool _isChecked = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _nameC.dispose();
-    _emailC.dispose();
-    _numberC.dispose();
-    _passC.dispose();
-    super.dispose();
-  }
-
-  void _onSubmit() {
-    final form = _formKey.currentState!;
-    // Validasi penuh dijalankan saat tombol ditekan
-    final ok = form.validate();
-
-    if (!ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('⚠️ Periksa kembali input kamu')),
-      );
-      return;
-    }
-
-    //  “I’m not a robot”
-    if (!_isChecked) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Centang "I\'m not a robot" dulu ya')),
-      );
-      return;
-    }
-
-    // return Semua valid
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('✅ Registrasi valid, proses pendaftaran...'),
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // Controllers input
+    final nameC = TextEditingController();
+    final emailC = TextEditingController();
+    final numberC = TextEditingController();
+    final passC = TextEditingController();
+
+    final formKey = GlobalKey<FormState>();
+
+    Future<void> onSubmit() async {
+      final form = formKey.currentState!;
+      final ok = form.validate();
+
+      if (!ok) {
+        showErrorSnackBar(context, '⚠️ Periksa kembali data registrasimu');
+        return;
+      }
+
+      if (!controller.isHumanCheckedRegister.value) {
+        showErrorSnackBar(context, 'Centang "I\'m not a robot" dulu ya');
+        return;
+      }
+
+      controller.isRegisterLoading.value = true;
+      try {
+        // 1️⃣ Daftarkan user ke Firebase
+        await controller.register(
+          name: nameC.text.trim(),
+          email: emailC.text.trim(),
+          password: passC.text.trim(),
+        );
+
+        final user = controller.currentUser.value;
+
+        if (user != null) {
+          final name = (user.displayName?.isNotEmpty ?? false)
+              ? user.displayName!
+              : (user.email ?? 'User');
+
+          // Tampilkan snackbar sukses
+          showSuccessSnackBar(
+            context,
+            'Registrasi berhasil 🎉\nSilakan login, $name',
+          );
+
+          // Logout dulu supaya tidak auto login ke dashboard
+          await controller.logout();
+
+          // Arahkan ke halaman login, bersihkan stack
+          if (!context.mounted) return;
+          AppRouter.goToLoginClearingStack(context);
+        }
+      } on FirebaseAuthException catch (e) {
+        final msg = mapRegisterError(e); // fungsi mapper yang kemarin
+        showErrorSnackBar(context, msg);
+      } catch (_) {
+        showErrorSnackBar(
+          context,
+          'Terjadi kesalahan tak terduga saat registrasi. Coba lagi.',
+        );
+      } finally {
+        controller.isRegisterLoading.value = false;
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Register')),
       body: SafeArea(
@@ -74,12 +100,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
 
-            // ========== FORM WRAPPER ==========
+            // ========= FORM =========
             child: Form(
-              key: _formKey,
-              //autovalidate disabled
+              key: formKey,
               autovalidateMode: AutovalidateMode.disabled,
-
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -90,9 +114,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       height: 50,
                     ),
                   ),
-                  Align(
+                  const Align(
                     alignment: Alignment.centerLeft,
-                    child: const Text(
+                    child: Text(
                       "Daftarkan Akun Untuk Lanjut Akses ke Luarsekolah",
                       style: TextStyle(
                         fontSize: 18,
@@ -110,6 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 20),
 
+                  // Google button (belum dihubungkan)
                   OutlinedButton.icon(
                     onPressed: () {},
                     icon: Image.asset(
@@ -129,8 +154,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  Row(
-                    children: const [
+                  const Row(
+                    children: [
                       Expanded(child: Divider()),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -148,7 +173,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 6),
                   TextFormField(
-                    controller: _nameC,
+                    controller: nameC,
                     keyboardType: TextInputType.name,
                     decoration: InputDecoration(
                       hintText: 'Ahmad Sahroni',
@@ -174,7 +199,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 6),
                   TextFormField(
-                    controller: _emailC,
+                    controller: emailC,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       hintText: 'user@example.com',
@@ -198,7 +223,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 6),
                   TextFormField(
-                    controller: _numberC,
+                    controller: numberC,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       hintText: '62812xxxxxx',
@@ -221,98 +246,124 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Text('Password'),
                   ),
                   const SizedBox(height: 6),
-                  TextFormField(
-                    controller: _passC,
-                    obscureText: _obscure,
-                    decoration: InputDecoration(
-                      hintText: 'Masukkan password',
-                      border: OutlineInputBorder(
+
+                  Obx(
+                    () => TextFormField(
+                      controller: passC,
+                      obscureText: controller.obscureRegisterPassword.value,
+                      decoration: InputDecoration(
+                        hintText: 'Masukkan password',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 14,
+                        ),
+                        suffixIcon: IconButton(
+                          onPressed: () =>
+                              controller.obscureRegisterPassword.toggle(),
+                          icon: Icon(
+                            controller.obscureRegisterPassword.value
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                        ),
+                      ),
+                      validator: Validators.validatePassword,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // ===== RECAPTCHA CHECKBOX =====
+                  Obx(
+                    () => Container(
+                      height: 80,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 14,
-                      ),
-                      suffixIcon: IconButton(
-                        onPressed: () => setState(() => _obscure = !_obscure),
-                        icon: Icon(
-                          _obscure ? Icons.visibility : Icons.visibility_off,
+                        border: Border.all(
+                          color: controller.isHumanCheckedRegister.value
+                              ? Colors.grey.shade300
+                              : Colors.red.shade300,
                         ),
                       ),
-                    ),
-                    validator: Validators.validatePassword,
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Recapta button
-                  Container(
-                    height: 80,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: Row(
-                      children: [
-                        Checkbox(
-                          value: _isChecked,
-                          onChanged: (bool? v) =>
-                              setState(() => _isChecked = v ?? false),
-                        ),
-                        const SizedBox(width: 12),
-                        const Text(
-                          "I'm not a robot",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        const Spacer(),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            SizedBox(height: 4),
-                            Text('reCAPTCHA', style: TextStyle(fontSize: 11)),
-                            Text(
-                              'Privacy • Terms',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.grey,
+                      child: Row(
+                        children: [
+                          Checkbox(
+                            value: controller.isHumanCheckedRegister.value,
+                            onChanged: (bool? v) =>
+                                controller.isHumanCheckedRegister.value =
+                                    v ?? false,
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            "I'm not a robot",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          const Spacer(),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              SizedBox(height: 4),
+                              Text('reCAPTCHA', style: TextStyle(fontSize: 11)),
+                              Text(
+                                'Privacy • Terms',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
                   const SizedBox(height: 16),
 
-                  //button daftar akun
-                  SizedBox(
-                    height: 48,
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _onSubmit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2E7D5A),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  // ===== BUTTON DAFTARKAN AKUN =====
+                  Obx(
+                    () => SizedBox(
+                      height: 48,
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: controller.isRegisterLoading.value
+                            ? null
+                            : onSubmit,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2E7D5A),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
                         ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Daftarkan Akun',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        child: controller.isRegisterLoading.value
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'Daftarkan Akun',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
                     ),
                   ),
 
                   const SizedBox(height: 12),
 
-                  // ===== Terms & CTA Masuk =====
+                  // ===== Terms =====
                   SizedBox(
                     width: double.infinity,
                     child: Wrap(
@@ -343,6 +394,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 12),
 
+                  // ===== CTA ke Login =====
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
