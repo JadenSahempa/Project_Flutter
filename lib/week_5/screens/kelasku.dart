@@ -28,7 +28,7 @@ class KelaskuScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               OutlinedButton.icon(
-                onPressed: () => Navigator.of(context).maybePop(),
+                onPressed: () {},
                 icon: const Icon(Iconsax.arrow_left_2),
                 label: const Text('Kembali'),
               ),

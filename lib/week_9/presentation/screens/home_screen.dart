@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:luar_sekolah_lms/week_9/presentation/controller/auth_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,7 +12,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _pageC = PageController();
   int _page = 0;
-  int _currentIndex = 0;
+  // int _currentIndex = 0;
+
+  // Ambil AuthController dari GetX
+  final AuthController authC = Get.find<AuthController>();
 
   @override
   void dispose() {
@@ -40,25 +45,37 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Halo,',
-                            style: TextStyle(color: Colors.white, fontSize: 13),
-                          ),
-                          Text(
-                            'Ahmad Sahroni 👋',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
+
+                    Expanded(
+                      child: Obx(() {
+                        final user = authC.currentUser.value;
+                        final name = (user?.displayName?.isNotEmpty ?? false)
+                            ? user!.displayName!
+                            : 'User';
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Halo,',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
+                            Text(
+                              '$name 👋',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                     ),
+
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
