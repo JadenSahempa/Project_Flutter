@@ -1,30 +1,42 @@
-import '../entities/course.dart';
+import '../entities/course_entity.dart';
+
+class CoursePage {
+  final List<CourseEntity> courses;
+  final int limit;
+  final int offset;
+
+  const CoursePage({
+    required this.courses,
+    required this.limit,
+    required this.offset,
+  });
+}
 
 abstract class CourseRepository {
-  Future<({List<Course> courses, int total, int limit, int offset})> fetch({
+  Future<CoursePage> getCourses({
     required int limit,
     required int offset,
-    List<String> categoryTag,
+    List<String>? categoryTag,
   });
 
-  Future<Course> create({
+  Future<CourseEntity> createCourse({
     required String name,
     required List<String> categoryTag,
-    String price,
+    String price = '0.00',
     String? rating,
     String? thumbnail,
   });
 
-  Future<Course> getById(String id);
+  Future<CourseEntity> getCourseById(String id);
 
-  Future<Course> update({
+  Future<CourseEntity> updateCourse({
     required String id,
     required String name,
     required List<String> categoryTag,
-    required String price,
+    String price = '0.00',
     String? rating,
     String? thumbnail,
   });
 
-  Future<void> delete(String id);
+  Future<void> deleteCourse(String id);
 }

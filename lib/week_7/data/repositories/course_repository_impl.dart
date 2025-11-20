@@ -1,66 +1,72 @@
-import '../../domain/entities/course.dart';
+import '../../domain/entities/course_entity.dart';
 import '../../domain/repositories/course_repository.dart';
 import '../datasources/course_remote_data_source.dart';
 
 class CourseRepositoryImpl implements CourseRepository {
   final CourseRemoteDataSource remote;
-  CourseRepositoryImpl(this.remote);
+
+  CourseRepositoryImpl({required this.remote});
 
   @override
-  Future<({List<Course> courses, int total, int limit, int offset})> fetch({
+  Future<CoursePage> getCourses({
     required int limit,
     required int offset,
-    List<String> categoryTag = const [],
+    List<String>? categoryTag,
   }) async {
-    final r = await remote.fetch(
+    // Di sini bisa tambahin caching, mapping, dsb kalau suatu saat perlu
+    return remote.getCourses(
       limit: limit,
       offset: offset,
       categoryTag: categoryTag,
     );
-    return (
-      courses: r.courses.map((e) => e.toEntity()).toList(),
-      total: r.total,
-      limit: r.limit,
-      offset: r.offset,
-    );
   }
 
   @override
-  Future<Course> create({
+  Future<CourseEntity> createCourse({
     required String name,
     required List<String> categoryTag,
     String price = '0.00',
     String? rating,
     String? thumbnail,
-  }) async => (await remote.create(
-    name: name,
-    categoryTag: categoryTag,
-    price: price,
-    rating: rating,
-    thumbnail: thumbnail,
-  )).toEntity();
+  }) async {
+    final model = await remote.createCourse(
+      name: name,
+      categoryTag: categoryTag,
+      price: price,
+      rating: rating,
+      thumbnail: thumbnail,
+    );
+    return model;
+  }
 
   @override
-  Future<void> delete(String id) => remote.delete(id);
+  Future<CourseEntity> getCourseById(String id) async {
+    final model = await remote.getCourseById(id);
+    return model;
+  }
 
   @override
-  Future<Course> getById(String id) async =>
-      (await remote.getById(id)).toEntity();
-
-  @override
-  Future<Course> update({
+  Future<CourseEntity> updateCourse({
     required String id,
     required String name,
     required List<String> categoryTag,
-    required String price,
+    String price = '0.00',
     String? rating,
     String? thumbnail,
-  }) async => (await remote.update(
-    id: id,
-    name: name,
-    categoryTag: categoryTag,
-    price: price,
-    rating: rating,
-    thumbnail: thumbnail,
-  )).toEntity();
+  }) async {
+    final model = await remote.updateCourse(
+      id: id,
+      name: name,
+      categoryTag: categoryTag,
+      price: price,
+      rating: rating,
+      thumbnail: thumbnail,
+    );
+    return model;
+  }
+
+  @override
+  Future<void> deleteCourse(String id) {
+    return remote.deleteCourse(id);
+  }
 }

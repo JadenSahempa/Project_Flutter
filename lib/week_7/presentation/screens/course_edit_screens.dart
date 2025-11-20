@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:luar_sekolah_lms/week_7/presentation/controllers/course_edit_controller.dart';
+
+import '../controllers/courseEditController.dart';
 
 class EditKelasScreen extends StatelessWidget {
   final String courseId;
@@ -9,34 +10,13 @@ class EditKelasScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ controller sudah disediakan oleh Binding saat Get.to(...)
-    final c = Get.find<CourseEditController>();
+    final c = Get.put(CourseEditController(courseId: courseId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Informasi Kelas')),
+      appBar: AppBar(title: const Text('Edit Kelas')),
       body: Obx(() {
-        if (c.loading.value) {
+        if (c.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
-        }
-        if (c.error.value != null) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Terjadi masalah:\n${c.error.value}',
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: () => c
-                    ..error.value = null
-                    ..fetch(),
-                  child: const Text('Coba lagi'),
-                ),
-              ],
-            ),
-          );
         }
 
         return SingleChildScrollView(
@@ -63,10 +43,12 @@ class EditKelasScreen extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
+
                         const SizedBox(height: 16),
 
                         const Text('Nama Kelas'),
                         const SizedBox(height: 6),
+
                         TextFormField(
                           controller: c.namaC,
                           decoration: const InputDecoration(
@@ -79,8 +61,10 @@ class EditKelasScreen extends StatelessWidget {
                         ),
 
                         const SizedBox(height: 16),
+
                         const Text('Harga Kelas'),
                         const SizedBox(height: 6),
+
                         TextFormField(
                           controller: c.hargaC,
                           keyboardType: const TextInputType.numberWithOptions(
@@ -103,31 +87,33 @@ class EditKelasScreen extends StatelessWidget {
                         ),
 
                         const SizedBox(height: 16),
-                        const Text('Kategori (tag)'),
+
+                        const Text('Kategori (bisa pilih lebih dari 1)'),
                         const SizedBox(height: 6),
+
                         Obx(
                           () => Wrap(
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              _TagChip(
+                              _TagChipMulti(
                                 label: 'Prakerja',
+                                value: 'prakerja',
                                 selected: c.kategori.contains('prakerja'),
                                 onTap: () {
-                                  const k = 'prakerja';
-                                  c.kategori.contains(k)
-                                      ? c.kategori.remove(k)
-                                      : c.kategori.add(k);
+                                  c.kategori.contains('prakerja')
+                                      ? c.kategori.remove('prakerja')
+                                      : c.kategori.add('prakerja');
                                 },
                               ),
-                              _TagChip(
+                              _TagChipMulti(
                                 label: 'SPL',
+                                value: 'spl',
                                 selected: c.kategori.contains('spl'),
                                 onTap: () {
-                                  const k = 'spl';
-                                  c.kategori.contains(k)
-                                      ? c.kategori.remove(k)
-                                      : c.kategori.add(k);
+                                  c.kategori.contains('spl')
+                                      ? c.kategori.remove('spl')
+                                      : c.kategori.add('spl');
                                 },
                               ),
                             ],
@@ -135,8 +121,10 @@ class EditKelasScreen extends StatelessWidget {
                         ),
 
                         const SizedBox(height: 16),
+
                         const Text('Rating (opsional, contoh 4.5)'),
                         const SizedBox(height: 6),
+
                         TextFormField(
                           controller: c.ratingC,
                           keyboardType: const TextInputType.numberWithOptions(
@@ -154,8 +142,10 @@ class EditKelasScreen extends StatelessWidget {
                         ),
 
                         const SizedBox(height: 16),
+
                         const Text('Thumbnail URL (opsional)'),
                         const SizedBox(height: 6),
+
                         TextFormField(
                           controller: c.thumbC,
                           decoration: const InputDecoration(
@@ -165,21 +155,34 @@ class EditKelasScreen extends StatelessWidget {
                         ),
 
                         const SizedBox(height: 20),
+
                         SizedBox(
                           height: 44,
-                          child: ElevatedButton(
-                            onPressed: c.submit,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF0FA958),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                          child: Obx(
+                            () => ElevatedButton(
+                              onPressed: c.isSubmitting.value ? null : c.submit,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0FA958),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
+                              child: c.isSubmitting.value
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text('Simpan Perubahan'),
                             ),
-                            child: const Text('Simpan Perubahan'),
                           ),
                         ),
+
                         const SizedBox(height: 10),
+
                         SizedBox(
                           height: 44,
                           child: OutlinedButton(
@@ -207,12 +210,14 @@ class EditKelasScreen extends StatelessWidget {
   }
 }
 
-class _TagChip extends StatelessWidget {
+class _TagChipMulti extends StatelessWidget {
   final String label;
+  final String value;
   final bool selected;
   final VoidCallback onTap;
-  const _TagChip({
+  const _TagChipMulti({
     required this.label,
+    required this.value,
     required this.selected,
     required this.onTap,
   });

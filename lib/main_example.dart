@@ -4,7 +4,7 @@ import 'week_9/presentation/screens/home_screen.dart';
 import 'week_9/presentation/screens/login_screen.dart';
 import 'week_9/presentation/screens/register_screen.dart';
 import 'week_3/widgets/page_card.dart';
-import 'week_7/presentation/screens/course_list_screen.dart';
+// import 'week_7/presentation/screens/course_list_screen.dart';
 
 import 'week_4/screens/edit_profile.dart';
 
@@ -45,7 +45,7 @@ class MainExample extends StatelessWidget {
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const HomeScreen(), // dashboard
         '/editProfile': (context) => const EditProfileScreen(),
-        '/dashboard-populer': (context) => const CourseListScreen(),
+        // '/dashboard-populer': (context) => const CourseListScreen(),
       },
     );
   }

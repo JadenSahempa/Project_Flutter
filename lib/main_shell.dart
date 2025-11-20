@@ -5,9 +5,10 @@ import 'week_5/screens/kelasku.dart';
 // import 'koin_ls.dart';
 import 'package:luar_sekolah_lms/utils/shared_helper.dart';
 import 'week_5/screens/akun.dart';
-import 'week_7/presentation/screens/course_list_screen.dart';
+import 'week_7/presentation/screens/kelas_terpopuler_screens.dart';
 import 'package:luar_sekolah_lms/week_6/screens/todo_crud_screen.dart';
 import 'package:luar_sekolah_lms/week_7/presentation/bindings/course_bindings.dart';
+import 'package:luar_sekolah_lms/app_config.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -22,9 +23,10 @@ class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
 
   // Urutan halaman sama seperti urutan icon di BottomNav
-  late final List<Widget> _pages = const [
+  late final List<Widget> _pages = [
     HomeScreen(), // Beranda
-    CourseListScreen(),
+    KelasTerpopulerScreen(),
+    // CourseListScreen(),
     KelaskuScreen(),
     // KoinLSScreen(),
     AkunScreen(),
@@ -35,7 +37,7 @@ class _MainShellState extends State<MainShell> {
   void initState() {
     super.initState();
     CourseBindings(
-      baseUrl: 'https://ls-lms.zoidify.my.id',
+      baseUrl: AppConfig.apiBaseUrl,
       token: StorageHelper.instance.getString('auth_token', defaultValue: ''),
     ).dependencies(); // <- penting: ini yang mendaftarkan SEMUA use case
     _controller = PageController(initialPage: _currentIndex);
