@@ -8,7 +8,8 @@ class TambahKelasScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = Get.put(CourseAddController());
+    // ✅ controller disediakan oleh Binding saat Get.to(...)
+    final c = Get.find<CourseAddController>();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Informasi Kelas')),
@@ -39,7 +40,6 @@ class TambahKelasScreen extends StatelessWidget {
                       const SizedBox(height: 16),
 
                       const Text('Nama Kelas'),
-
                       const SizedBox(height: 6),
                       TextFormField(
                         controller: c.namaC,
@@ -53,11 +53,8 @@ class TambahKelasScreen extends StatelessWidget {
                       ),
 
                       const SizedBox(height: 16),
-
                       const Text('Harga Kelas'),
-
                       const SizedBox(height: 6),
-
                       TextFormField(
                         controller: c.hargaC,
                         keyboardType: TextInputType.number,
@@ -73,38 +70,42 @@ class TambahKelasScreen extends StatelessWidget {
                             ? 'Harga wajib diisi'
                             : null,
                       ),
+
                       const SizedBox(height: 16),
-
                       const Text('Kategori Kelas'),
-
                       const SizedBox(height: 6),
 
                       Obx(
                         () => DropdownButtonFormField<String>(
-                          initialValue: c.kategori.value,
+                          // ✅ untuk RxnString cukup pakai value:
+                          value: c.kategori.value, // null | 'prakerja' | 'spl'
+                          // ✅ item values disamakan dgn state (lowercase)
                           items: const [
                             DropdownMenuItem(
-                              value: 'Prakerja',
+                              value: 'prakerja',
                               child: Text('Prakerja'),
                             ),
-                            DropdownMenuItem(value: 'SPL', child: Text('SPL')),
+                            DropdownMenuItem(value: 'spl', child: Text('SPL')),
                           ],
+
+                          // ✅ simpan persis valuenya (tanpa toLowerCase lagi, sudah lowercase)
                           onChanged: (v) => c.kategori.value = v,
+
                           decoration: const InputDecoration(
                             hintText: 'Pilih Prakerja atau SPL',
                             border: OutlineInputBorder(),
                           ),
+
                           validator: (v) =>
                               v == null ? 'Kategori wajib dipilih' : null,
                         ),
                       ),
 
                       const SizedBox(height: 20),
-
                       SizedBox(
                         height: 44,
                         child: ElevatedButton(
-                          onPressed: c.submit, // <-- kirim ke API + update list
+                          onPressed: c.submit, // kirim ke API + update list
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF116E55),
                             foregroundColor: Colors.white,
@@ -117,7 +118,6 @@ class TambahKelasScreen extends StatelessWidget {
                       ),
 
                       const SizedBox(height: 10),
-
                       SizedBox(
                         height: 44,
                         child: OutlinedButton(

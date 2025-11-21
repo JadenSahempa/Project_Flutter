@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:luar_sekolah_lms/week_4/screens/edit_profile.dart';
 import '../../main_shell.dart';
+import 'package:get/get.dart';
 import 'package:luar_sekolah_lms/router/app_router.dart';
-import 'package:luar_sekolah_lms/utils/shared_helper.dart';
+import 'package:luar_sekolah_lms/week_9/presentation/controller/auth_controller.dart';
 
 class AkunScreen extends StatelessWidget {
   const AkunScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final storage = StorageHelper.instance;
+    final authC = Get.find<AuthController>();
+    // final storage = StorageHelper.instance;
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SafeArea(
@@ -93,11 +95,10 @@ class AkunScreen extends StatelessWidget {
                 icon: const Icon(Iconsax.logout),
                 label: const Text('Logout'),
                 onPressed: () async {
-                  await storage.logout();
+                  await authC.logout(); // <- Firebase logout
                   if (!context.mounted) return;
-                  AppRouter.goToLoginClearingStack(
-                    context,
-                  ); // bersihkan stack → balik login
+
+                  AppRouter.goToLoginClearingStack(context);
                 },
               ),
 
