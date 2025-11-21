@@ -5,6 +5,7 @@ import '../../domain/entities/course_entity.dart';
 import '../../domain/usecases/get_course_detail.dart';
 import '../../domain/usecases/update_course.dart';
 import 'course_controller.dart';
+import 'package:luar_sekolah_lms/services/local_notifications_service.dart';
 
 class CourseEditController extends GetxController {
   final String courseId;
@@ -93,6 +94,8 @@ class CourseEditController extends GetxController {
     final thumbText = thumbC.text.trim();
     final thumb = thumbText.isEmpty ? null : thumbText;
 
+    final name = namaC.text.trim();
+
     try {
       isSubmitting.value = true;
 
@@ -103,11 +106,16 @@ class CourseEditController extends GetxController {
 
       await _updateCourse(
         id: courseId,
-        name: namaC.text.trim(),
+        name: name,
         categoryTag: kategori.toList(), // 🔥 kirim semua kategori
         price: priceStr,
         rating: rating,
         thumbnail: thumb,
+      );
+
+      await LocalNotificationsService.showNotification(
+        title: 'Course Diupdate',
+        body: 'Perubahan pada "$name" berhasil disimpan.',
       );
 
       await listCtrl?.reload();

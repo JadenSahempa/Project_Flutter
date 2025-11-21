@@ -6,6 +6,9 @@ import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:luar_sekolah_lms/week_9/presentation/bindings/auth_bindings.dart';
 import 'firebase_options.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'services/local_notifications_service.dart';
+import 'services/firebase_messaging_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +21,15 @@ void main() async {
 
   // register semua dependency auth
   AuthBindings().dependencies();
+
+  // 🟢 Init local notifications
+  await LocalNotificationsService.initialize();
+
+  // 🟢 Daftarkan handler background FCM
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  // 🟢 Init FCM (minta permission, onMessage, dll)
+  await FirebaseMessagingService.initialize();
 
   runApp(const MyApp());
 }

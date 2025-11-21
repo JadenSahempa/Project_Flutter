@@ -3,17 +3,37 @@ import 'package:get/get.dart';
 
 import '../../domain/usecases/create_course.dart';
 import 'course_controller.dart';
+import 'package:luar_sekolah_lms/services/local_notifications_service.dart';
+// import 'package:luar_sekolah_lms/services/course_event_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+// class CourseEventService {
+//   final _col = FirebaseFirestore.instance.collection('course_events');
+
+//   Future<void> logCourseCreated({
+//     required String name,
+//     String? courseId,
+//   }) async {
+//     await _col.add({
+//       'name': name,
+//       'courseId': courseId,
+//       'createdAt': FieldValue.serverTimestamp(),
+//     });
+//   }
+// }
 
 class CourseAddController extends GetxController {
+  // service untuk log event ke Firestore
+  // final CourseEventService _eventService = CourseEventService();
   final formKey = GlobalKey<FormState>();
 
   final namaC = TextEditingController();
   final hargaC = TextEditingController();
 
-  // 🔥 multi kategori
+  // multi kategori
   final kategori = <String>[].obs; // contoh: ['prakerja', 'spl']
 
-  // 🔥 field tambahan
+  // field tambahan
   final ratingC = TextEditingController();
   final thumbC = TextEditingController();
 
@@ -56,6 +76,8 @@ class CourseAddController extends GetxController {
     final thumbText = thumbC.text.trim();
     final thumbnail = thumbText.isEmpty ? null : thumbText;
 
+    final courseName = namaC.text.trim();
+
     try {
       isSubmitting.value = true;
 
@@ -65,14 +87,25 @@ class CourseAddController extends GetxController {
       );
 
       await createCourseUseCase(
-        name: namaC.text.trim(),
+        name: courseName,
         categoryTag: kategori.toList(),
         price: priceStr,
         rating: rating,
         thumbnail: thumbnail,
       );
 
+      // await _eventService.logCourseCreated(
+      //   name: courseName,
+      //   // courseId: course.id, // kalau suatu saat usecase mengembalikan id
+      // );
+
       await listCtrl?.reload();
+
+      // Kirim notifikasi lokal bahwa course berhasil ditambahkan
+      await LocalNotificationsService.showNotification(
+        title: 'Course Baru',
+        body: 'Course "$courseName" ditambahkan dengan harga $priceStr',
+      );
 
       Get.back(); // tutup dialog loading
       Get.back(result: true); // kembali ke tab popular

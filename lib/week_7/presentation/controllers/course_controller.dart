@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../domain/entities/course_entity.dart';
 import '../../domain/usecases/get_popular_courses.dart';
 import '../../domain/usecases/delete_course.dart';
+import 'package:luar_sekolah_lms/services/local_notifications_service.dart';
 
 class CourseController extends GetxController {
   final GetPopularCoursesUseCase getPopularCourses;
@@ -67,6 +68,12 @@ class CourseController extends GetxController {
       error.value = null;
 
       await deleteCourseUseCase(id);
+
+      await LocalNotificationsService.showNotification(
+        title: 'Course Dihapus',
+        body: 'Course berhasil dihapus.',
+      );
+
       await reload();
     } catch (e) {
       error.value = e.toString();
