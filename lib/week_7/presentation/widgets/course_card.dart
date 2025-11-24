@@ -5,6 +5,7 @@ class CourseCard extends StatelessWidget {
   final List<String> tags;
   final String priceText;
   final String? thumbnailUrl;
+  final String? rating; // ⬅️ tambahkan ini
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
@@ -14,6 +15,7 @@ class CourseCard extends StatelessWidget {
     required this.tags,
     required this.priceText,
     this.thumbnailUrl,
+    this.rating, // ⬅️ tambahkan ini
     this.onEdit,
     this.onDelete,
   });
@@ -43,7 +45,7 @@ class CourseCard extends StatelessWidget {
               child: thumb == null
                   ? const Icon(Icons.book, size: 28, color: Colors.teal)
                   : Image.network(
-                      thumb,
+                      thumb!,
                       width: 64,
                       height: 64,
                       fit: BoxFit.cover,
@@ -60,13 +62,35 @@ class CourseCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 6),
+
               if (tags.isNotEmpty)
                 Wrap(
                   spacing: 8,
                   runSpacing: 6,
                   children: tags.map((t) => _BadgePill(text: t)).toList(),
                 ),
+
               const SizedBox(height: 8),
+
+              // ⭐ Tambahin rating di sini
+              if (rating != null && rating!.trim().isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.star, color: Colors.amber, size: 18),
+                      const SizedBox(width: 4),
+                      Text(
+                        rating!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
               Text(
                 priceText,
                 style: const TextStyle(
@@ -112,9 +136,9 @@ class _BadgePill extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = text.toLowerCase().trim();
     final Color bg = switch (t) {
-      'prakerja' => const Color(0xFF2F80ED), // biru solid
-      'spl' => const Color(0xFF22C55E), // hijau solid
-      _ => const Color(0xFF64748B), // fallback slate
+      'prakerja' => const Color(0xFF2F80ED),
+      'spl' => const Color(0xFF22C55E),
+      _ => const Color(0xFF64748B),
     };
 
     return Container(
@@ -127,9 +151,9 @@ class _BadgePill extends StatelessWidget {
       child: Text(
         text,
         style: const TextStyle(
-          color: Colors.white, // teks putih sesuai figma
+          color: Colors.white,
           fontSize: 12,
-          fontWeight: FontWeight.w600, // semi-bold
+          fontWeight: FontWeight.w600,
           letterSpacing: 0.2,
         ),
       ),

@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'week_9/presentation/screens/home_screen.dart';
 import 'week_9/presentation/screens/login_screen.dart';
 import 'week_9/presentation/screens/register_screen.dart';
+import 'week_9/presentation/screens/home_screen.dart';
+import 'week_9/presentation/screens/login_screen.dart';
+import 'week_9/presentation/screens/register_screen.dart';
 import 'week_3/widgets/page_card.dart';
-import 'week_7/presentation/screens/course_list_screen.dart';
+// import 'week_7/presentation/screens/course_list_screen.dart';
 
 import 'week_4/screens/edit_profile.dart';
 
@@ -29,6 +32,7 @@ class MainExample extends StatelessWidget {
         // and then invoke "hot reload" (save your changes or press the "hot
         // reload" button in a Flutter-supported IDE, or press "r" if you used
         // the command line to start thedd app).
+        // the command line to start thedd app).
         //
         // Notice that the counter didn't reset back to zero; the application
         // state is not lost during the reload. To reset the state, use hot
@@ -45,7 +49,7 @@ class MainExample extends StatelessWidget {
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const HomeScreen(), // dashboard
         '/editProfile': (context) => const EditProfileScreen(),
-        '/dashboard-populer': (context) => const CourseListScreen(),
+        // '/dashboard-populer': (context) => const CourseListScreen(),
       },
     );
   }

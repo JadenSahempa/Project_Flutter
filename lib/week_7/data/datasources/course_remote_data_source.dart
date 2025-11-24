@@ -1,29 +1,35 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+
 import '../models/course_model.dart';
+import '../../domain/repositories/course_repository.dart';
 
 abstract class CourseRemoteDataSource {
-  Future<({List<CourseModel> courses, int total, int limit, int offset})>
-  fetch({required int limit, required int offset, List<String> categoryTag});
+  Future<CoursePage> getCourses({
+    required int limit,
+    required int offset,
+    List<String>? categoryTag,
+  });
 
-  Future<CourseModel> create({
+  Future<CourseModel> createCourse({
     required String name,
     required List<String> categoryTag,
-    String price,
+    String price = '0.00',
     String? rating,
     String? thumbnail,
   });
 
-  Future<CourseModel> getById(String id);
-  Future<CourseModel> update({
+  Future<CourseModel> getCourseById(String id);
+  Future<CourseModel> updateCourse({
     required String id,
     required String name,
     required List<String> categoryTag,
-    required String price,
+    String price = '0.00',
     String? rating,
     String? thumbnail,
   });
-  Future<void> delete(String id);
+
+  Future<void> deleteCourse(String id);
 }
 
 class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
@@ -34,41 +40,53 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
   CourseRemoteDataSourceImpl({
     required this.baseUrl,
     required this.token,
-    required this.client,
-  });
+    http.Client? client,
+  }) : client = client ?? http.Client();
 
-  Map<String, String> get _headers => {'Authorization': 'Bearer $token'};
-
+  // Data Source Impl GET COURSES
   @override
-  Future<({List<CourseModel> courses, int total, int limit, int offset})>
-  fetch({
+  Future<CoursePage> getCourses({
     required int limit,
     required int offset,
-    List<String> categoryTag = const [],
+    List<String>? categoryTag,
   }) async {
-    final qp = <String, String>{'limit': '$limit', 'offset': '$offset'};
-    for (var i = 0; i < categoryTag.length; i++) {
-      qp['categoryTag[$i]'] = categoryTag[i];
-    }
-    final uri = Uri.parse('$baseUrl/api/courses').replace(queryParameters: qp);
-    final res = await client.get(uri, headers: _headers);
-    if (res.statusCode != 200) {
-      throw Exception('Failed to fetch courses (${res.statusCode})');
-    }
-    final m = jsonDecode(res.body) as Map<String, dynamic>;
-    final list = (m['courses'] as List)
-        .map((e) => CourseModel.fromJson(e))
-        .toList();
-    return (
-      courses: list,
-      total: (m['total'] as num).toInt(),
-      limit: (m['limit'] as num).toInt(),
-      offset: (m['offset'] as num).toInt(),
+    final uri = Uri.parse('$baseUrl/api/courses').replace(
+      queryParameters: {
+        'limit': '$limit',
+        'offset': '$offset',
+        if (categoryTag != null)
+          for (var i = 0; i < categoryTag.length; i++)
+            'categoryTag[$i]': categoryTag[i],
+      },
     );
+
+    final res = await client.get(
+      uri,
+      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+    );
+
+    if (res.statusCode != 200) {
+      throw Exception('Gagal memuat courses (${res.statusCode})');
+    }
+
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+
+    // Sesuai JSON backend kamu
+    final coursesJson = body['courses'] as List? ?? [];
+
+    final courses = coursesJson
+        .map((e) => CourseModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    final respLimit = body['limit'] as int? ?? limit;
+    final respOffset = body['offset'] as int? ?? offset;
+
+    return CoursePage(courses: courses, limit: respLimit, offset: respOffset);
   }
 
+  // impl Data Source CREATE COURSE
   @override
-  Future<CourseModel> create({
+  Future<CourseModel> createCourse({
     required String name,
     required List<String> categoryTag,
     String price = '0.00',
@@ -76,83 +94,112 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
     String? thumbnail,
   }) async {
     final uri = Uri.parse('$baseUrl/api/courses');
-    final payload = {
+
+    final body = <String, dynamic>{
       'name': name,
-      'price': price, // harus string pattern "####.##"
+      'price': price,
       'categoryTag': categoryTag,
-      if (rating != null && rating.isNotEmpty) 'rating': rating,
-      if (thumbnail != null && thumbnail.isNotEmpty) 'thumbnail': thumbnail,
+      if (thumbnail != null && thumbnail.trim().isNotEmpty)
+        'thumbnail': thumbnail,
+      if (rating != null && rating.trim().isNotEmpty) 'rating': rating,
     };
-
-    final headers = {
-      ..._headers,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-
-    print('[POST] $baseUrl/api/courses');
-    print('Body: ${jsonEncode(payload)}'); // debug log
 
     final res = await client.post(
-      Uri.parse('$baseUrl/api/courses'),
-      headers: headers,
-      body: jsonEncode(payload), // ✅ TANPA "data"
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode(body),
     );
 
-    print('Response: ${res.statusCode} ${res.body}');
-
-    if (res.statusCode != 200 && res.statusCode != 201) {
-      throw Exception(
-        'failed to create course(${res.statusCode}): ${res.body}',
-      );
+    if (res.statusCode == 200) {
+      final m = jsonDecode(res.body) as Map<String, dynamic>;
+      return CourseModel.fromJson(m);
+    } else if (res.statusCode == 404) {
+      throw Exception('Course not found (404)');
+    } else if (res.statusCode == 500) {
+      throw Exception('Course validation failed (500)');
     }
-    return CourseModel.fromJson(jsonDecode(res.body));
+    throw Exception('Failed to create course (${res.statusCode})');
   }
 
+  // impl Data Source EDIT COURSE
   @override
-  Future<void> delete(String id) async {
+  Future<CourseModel> getCourseById(String id) async {
     final uri = Uri.parse('$baseUrl/api/course/$id');
-    final res = await client.delete(uri, headers: _headers);
+
+    final res = await client.get(
+      uri,
+      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+    );
+
     if (res.statusCode != 200) {
-      throw Exception('Failed to delete course (${res.statusCode})');
+      throw Exception('Gagal memuat detail course (${res.statusCode})');
     }
+
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    return CourseModel.fromJson(body);
   }
 
+  // impl Data Source EDIT UPDATE COURSE
   @override
-  Future<CourseModel> getById(String id) async {
-    final uri = Uri.parse('$baseUrl/api/course/$id');
-    final res = await client.get(uri, headers: _headers);
-    if (res.statusCode != 200) {
-      throw Exception('Failed to get course (${res.statusCode})');
-    }
-    return CourseModel.fromJson(jsonDecode(res.body));
-  }
-
-  @override
-  Future<CourseModel> update({
+  Future<CourseModel> updateCourse({
     required String id,
     required String name,
     required List<String> categoryTag,
-    required String price,
+    String price = '0.00',
     String? rating,
     String? thumbnail,
   }) async {
     final uri = Uri.parse('$baseUrl/api/course/$id');
-    final payload = {
+
+    // Payload inti, sesuai field yang didukung API
+    final payload = <String, dynamic>{
       'name': name,
       'price': price,
       'categoryTag': categoryTag,
-      if (rating != null && rating.isNotEmpty) 'rating': rating,
-      if (thumbnail != null && thumbnail.isNotEmpty) 'thumbnail': thumbnail,
+      if (thumbnail != null && thumbnail.trim().isNotEmpty)
+        'thumbnail': thumbnail.trim(),
+      if (rating != null && rating.trim().isNotEmpty) 'rating': rating.trim(),
     };
+
     final res = await client.put(
       uri,
-      headers: {..._headers, 'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+      // 💥 WAJIB dibungkus dalam "data"
       body: jsonEncode({'data': payload}),
     );
+
     if (res.statusCode != 200) {
-      throw Exception('Failed to update course (${res.statusCode})');
+      // sementara tulis ke log biar bisa cek pesan error backend
+      // ignore: avoid_print
+      print('Update course error ${res.statusCode}: ${res.body}');
+      throw Exception('Gagal update course (${res.statusCode})');
     }
-    return CourseModel.fromJson(jsonDecode(res.body));
+
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    return CourseModel.fromJson(body);
+  }
+
+  // impl Data Source DELETE COURSE
+  @override
+  Future<void> deleteCourse(String id) async {
+    final uri = Uri.parse('$baseUrl/api/course/$id');
+
+    final res = await client.delete(
+      uri,
+      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+    );
+
+    if (res.statusCode != 200 && res.statusCode != 204) {
+      // Bisa disesuaikan dengan respon backend kamu
+      throw Exception('Gagal menghapus course (${res.statusCode})');
+    }
   }
 }
