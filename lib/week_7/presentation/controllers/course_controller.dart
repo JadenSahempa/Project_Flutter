@@ -5,6 +5,8 @@ import '../../domain/usecases/get_popular_courses.dart';
 import '../../domain/usecases/delete_course.dart';
 import 'package:luar_sekolah_lms/services/local_notifications_service.dart';
 
+import 'pagination_controller.dart';
+
 class CourseController extends GetxController {
   final GetPopularCoursesUseCase getPopularCourses;
   final DeleteCourseUseCase deleteCourseUseCase;
@@ -16,57 +18,40 @@ class CourseController extends GetxController {
     this.defaultTags = const ['prakerja', 'spl'],
   });
 
-  final items = <CourseEntity>[].obs;
-  final loading = false.obs;
-  final error = RxnString();
-  final limit = 20.obs;
-  final offset = 0.obs;
-  final hasMore = true.obs;
+  /// Pagination controller untuk CourseEntity
+  late final PaginationController<CourseEntity> paging;
 
   @override
   void onInit() {
     super.onInit();
-    reload();
+
+    // Inisialisasi pagination
+    paging = PaginationController<CourseEntity>(
+      pageSize: 20,
+      fetchPage: (page, pageSize) async {
+        // page dimulai dari 0
+        final offset = page * pageSize;
+
+        final coursePage = await getPopularCourses(
+          limit: pageSize,
+          offset: offset,
+          categoryTag: defaultTags,
+        );
+
+        return coursePage.courses;
+      },
+    );
+
+    // Load pertama kali
+    paging.loadFirstPage();
   }
 
-  Future<void> reload() async {
-    items.clear();
-    offset.value = 0;
-    hasMore.value = true;
-    await _loadPage();
-  }
+  Future<void> reload() => paging.loadFirstPage();
 
-  Future<void> loadMore() async {
-    if (loading.value || !hasMore.value) return;
-    await _loadPage();
-  }
-
-  Future<void> _loadPage() async {
-    try {
-      loading.value = true;
-      error.value = null;
-
-      final page = await getPopularCourses(
-        limit: limit.value,
-        offset: offset.value,
-        categoryTag: defaultTags,
-      );
-
-      items.addAll(page.courses);
-      offset.value = page.offset + page.limit;
-      hasMore.value = page.courses.isNotEmpty;
-    } catch (e) {
-      error.value = e.toString();
-    } finally {
-      loading.value = false;
-    }
-  }
+  Future<void> loadMore() => paging.loadNextPage();
 
   Future<void> deleteCourse(String id) async {
     try {
-      loading.value = true;
-      error.value = null;
-
       await deleteCourseUseCase(id);
 
       await LocalNotificationsService.showNotification(
@@ -74,12 +59,10 @@ class CourseController extends GetxController {
         body: 'Course berhasil dihapus.',
       );
 
-      await reload();
+      // Setelah delete, reload dari page pertama
+      await paging.loadFirstPage();
     } catch (e) {
-      error.value = e.toString();
       rethrow;
-    } finally {
-      loading.value = false;
     }
   }
 }

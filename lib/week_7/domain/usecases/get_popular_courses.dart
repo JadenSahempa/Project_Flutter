@@ -1,4 +1,3 @@
-import '../entities/course_entity.dart';
 import '../repositories/course_repository.dart';
 
 class GetPopularCoursesUseCase {
