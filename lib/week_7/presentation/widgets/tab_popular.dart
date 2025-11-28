@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// import 'package:luar_sekolah_lms/week_7/services/course_api_service.dart';
+
 import '../controllers/course_controller.dart';
 import 'course_card.dart';
 import 'package:luar_sekolah_lms/week_7/presentation/screens/course_edit_screens.dart'
@@ -8,37 +8,60 @@ import 'package:luar_sekolah_lms/week_7/presentation/screens/course_edit_screens
 import 'package:luar_sekolah_lms/week_7/presentation/screens/course_add_screens.dart'
     show TambahKelasScreen;
 
-class PopularCoursesTab extends StatelessWidget {
+class PopularCoursesTab extends StatefulWidget {
   const PopularCoursesTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final c = Get.find<CourseController>(tag: 'popular');
+  State<PopularCoursesTab> createState() => _PopularCoursesTabState();
+}
 
-    final scroll = ScrollController();
-    scroll.addListener(() {
-      if (scroll.position.pixels >= scroll.position.maxScrollExtent - 200) {
-        c.loadMore();
+class _PopularCoursesTabState extends State<PopularCoursesTab> {
+  late final CourseController c;
+  late final ScrollController _scroll;
+
+  @override
+  void initState() {
+    super.initState();
+    c = Get.find<CourseController>(tag: 'popular');
+
+    _scroll = ScrollController();
+    _scroll.addListener(() {
+      if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 200) {
+        c.loadMore(); // delegasi ke paging.loadNextPage()
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final paging = c.paging;
 
     return SafeArea(
       child: Obx(() {
-        if (c.loading.value && c.items.isEmpty) {
+        // LOADING PERTAMA + TIDAK ADA DATA
+        if (paging.isLoadingFirstPage.value && paging.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (c.error.value != null && c.items.isEmpty) {
+
+        // ERROR PERTAMA + TIDAK ADA DATA
+        if (paging.error.value != null && paging.isEmpty) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Terjadi masalah:\n${c.error.value}',
+                  'Terjadi masalah:\n${paging.error.value}',
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
                 ElevatedButton(
-                  onPressed: c.reload,
+                  onPressed: paging.loadFirstPage,
                   child: const Text('Coba lagi'),
                 ),
               ],
@@ -46,13 +69,23 @@ class PopularCoursesTab extends StatelessWidget {
           );
         }
 
+        // Loader di bawah list untuk "load more"
+        final showBottomLoader =
+            paging.isLoadingMore.value && paging.hasMore.value;
+
+        final itemCount =
+            1 + // header "Tambah Kelas"
+            paging.items.length +
+            (showBottomLoader ? 1 : 0); // extra row buat loader bawah
+
         return RefreshIndicator(
-          onRefresh: () => c.reload(),
+          onRefresh: paging.loadFirstPage,
           child: ListView.builder(
-            controller: scroll,
+            controller: _scroll,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            itemCount: c.items.length + 1,
+            itemCount: itemCount,
             itemBuilder: (ctx, i) {
+              // [0] HEADER: tombol "Tambah Kelas"
               if (i == 0) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
@@ -67,7 +100,6 @@ class PopularCoursesTab extends StatelessWidget {
                               () => const TambahKelasScreen(),
                             );
                             if (result == true) {
-                              // kalau submit() sudah memanggil listCtrl.reload(), bagian ini cukup snackbar saja
                               Get.snackbar(
                                 'Berhasil',
                                 'Course berhasil terbuat',
@@ -78,8 +110,8 @@ class PopularCoursesTab extends StatelessWidget {
                                 duration: const Duration(seconds: 2),
                               );
 
-                              // jika kamu TIDAK reload dari controller, panggil ini:
-                              // c.reload();
+                              // Kalau mau reload list:
+                              // await paging.loadFirstPage();
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -104,7 +136,18 @@ class PopularCoursesTab extends StatelessWidget {
                 );
               }
 
-              final item = c.items[i - 1];
+              // ITEM TERAKHIR: loader "load more"
+              if (showBottomLoader && i == itemCount - 1) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              // ITEM COURSE
+              final itemIndex = i - 1;
+              final item = paging.items[itemIndex];
+
               final tags = item.categoryTag;
               final price = item.price == '0.00'
                   ? 'Gratis'
@@ -118,8 +161,6 @@ class PopularCoursesTab extends StatelessWidget {
                   priceText: price,
                   thumbnailUrl: item.thumbnail,
                   rating: item.rating,
-
-                  // di PopularCoursesTab, saat membuat CourseCard
                   onEdit: () async {
                     final result = await Get.to(
                       () => EditKelasScreen(courseId: item.id),
@@ -135,9 +176,11 @@ class PopularCoursesTab extends StatelessWidget {
                         margin: const EdgeInsets.all(12),
                         duration: const Duration(seconds: 2),
                       );
+
+                      // optional: reload data
+                      // await paging.loadFirstPage();
                     }
                   },
-
                   onDelete: () async {
                     final ok = await Get.dialog<bool>(
                       AlertDialog(
@@ -159,8 +202,6 @@ class PopularCoursesTab extends StatelessWidget {
                     if (ok == true) {
                       try {
                         await c.deleteCourse(item.id);
-                        // opsi 2 (instan): hapus lokal lalu setState via Rx:
-                        // c.items.removeWhere((x) => x.id == item.id);
 
                         Get.snackbar(
                           'Berhasil',
