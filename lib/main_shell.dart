@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:luar_sekolah_lms/week_9/presentation/screens/home_screen.dart';
-import 'week_5/screens/kelasku.dart';
+import 'package:luar_sekolah_lms/auth_module/presentation/screens/home_screen.dart';
+import 'mycourse_module/presentation/screens/kelasku.dart';
 // import 'koin_ls.dart';
 import 'package:luar_sekolah_lms/utils/shared_helper.dart';
-import 'week_5/screens/akun.dart';
-import 'week_7/presentation/screens/kelas_terpopuler_screens.dart';
-import 'package:luar_sekolah_lms/week_6/screens/todo_crud_screen.dart';
-import 'package:luar_sekolah_lms/week_7/presentation/bindings/course_bindings.dart';
+import 'account_module/screens/akun.dart';
+import 'course_module/presentation/screens/kelas_terpopuler_screens.dart';
+import 'package:luar_sekolah_lms/todo_module/screens/todo_crud_screen.dart';
+import 'package:luar_sekolah_lms/course_module/presentation/bindings/course_bindings.dart';
 import 'package:luar_sekolah_lms/app_config.dart';
 
 class MainShell extends StatefulWidget {

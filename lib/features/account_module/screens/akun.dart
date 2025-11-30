@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:luar_sekolah_lms/week_4/screens/edit_profile.dart';
-import '../../main_shell.dart';
+import 'package:luar_sekolah_lms/features/account_module/screens/edit_profile.dart';
+import '../../../main_shell.dart';
 import 'package:get/get.dart';
 import 'package:luar_sekolah_lms/router/app_router.dart';
-import 'package:luar_sekolah_lms/week_9/presentation/controller/auth_controller.dart';
+import 'package:luar_sekolah_lms/features/auth_module/presentation/controller/auth_controller.dart';
 
 class AkunScreen extends StatelessWidget {
   const AkunScreen({super.key});
