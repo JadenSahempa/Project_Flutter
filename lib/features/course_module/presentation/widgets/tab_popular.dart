@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 
 import '../controllers/course_controller.dart';
 import 'course_card.dart';
-import 'package:luar_sekolah_lms/week_7/presentation/screens/course_edit_screens.dart'
+import 'package:luar_sekolah_lms/features/course_module/presentation/screens/course_edit_screens.dart'
     show EditKelasScreen;
-import 'package:luar_sekolah_lms/week_7/presentation/screens/course_add_screens.dart'
+import 'package:luar_sekolah_lms/features/course_module/presentation/screens/course_add_screens.dart'
     show TambahKelasScreen;
 
 class PopularCoursesTab extends StatefulWidget {

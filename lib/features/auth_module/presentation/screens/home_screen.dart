@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:luar_sekolah_lms/week_9/presentation/controller/auth_controller.dart';
+import 'package:luar_sekolah_lms/features/auth_module/presentation/controller/auth_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

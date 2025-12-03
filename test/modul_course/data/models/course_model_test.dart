@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:luar_sekolah_lms/week_7/data/models/course_model.dart';
-import 'package:luar_sekolah_lms/week_7/domain/entities/course_entity.dart';
+import 'package:luar_sekolah_lms/features/course_module/data/models/course_model.dart';
+import 'package:luar_sekolah_lms/features/course_module/domain/entities/course_entity.dart';
 
 void main() {
   test('Coursemodel.fromJson harus parsing JSON dengan benar', () {

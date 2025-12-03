@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:luar_sekolah_lms/week_4/utils/validators.dart';
+import 'package:luar_sekolah_lms/features/account_module/utils/validators.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});

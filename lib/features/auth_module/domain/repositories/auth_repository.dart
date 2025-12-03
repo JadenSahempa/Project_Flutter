@@ -1,4 +1,4 @@
-import 'package:luar_sekolah_lms/week_9/domain/entities/auth_user.dart';
+import 'package:luar_sekolah_lms/features/auth_module/domain/entities/auth_user.dart';
 
 abstract class AuthRepository {
   Future<AuthUser> loginWithEmail({

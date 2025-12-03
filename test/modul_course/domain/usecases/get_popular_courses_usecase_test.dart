@@ -2,9 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 // 👉 SESUAIKAN dengan package project-mu:
-import 'package:luar_sekolah_lms/week_7/domain/entities/course_entity.dart';
-import 'package:luar_sekolah_lms/week_7/domain/repositories/course_repository.dart';
-import 'package:luar_sekolah_lms/week_7/domain/usecases/get_popular_courses.dart';
+import 'package:luar_sekolah_lms/features/course_module/domain/entities/course_entity.dart';
+import 'package:luar_sekolah_lms/features/course_module/domain/repositories/course_repository.dart';
+import 'package:luar_sekolah_lms/features/course_module/domain/usecases/get_popular_courses.dart';
 
 // 1. Bikin mock untuk CourseRepository
 class MockCourseRepository extends Mock implements CourseRepository {}

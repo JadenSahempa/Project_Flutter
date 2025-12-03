@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'week_9/presentation/screens/home_screen.dart';
-import 'week_9/presentation/screens/login_screen.dart';
-import 'week_9/presentation/screens/register_screen.dart';
+import 'features/auth_module/presentation/screens/home_screen.dart';
+import 'features/auth_module/presentation/screens/login_screen.dart';
+import 'features/auth_module/presentation/screens/register_screen.dart';
 import 'week_3/widgets/page_card.dart';
 // import 'week_7/presentation/screens/course_list_screen.dart';
 
-import 'week_4/screens/edit_profile.dart';
+import 'features/account_module/screens/edit_profile.dart';
 
 void main() {
   runApp(const MainExample());

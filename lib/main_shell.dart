@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:luar_sekolah_lms/auth_module/presentation/screens/home_screen.dart';
-import 'mycourse_module/presentation/screens/kelasku.dart';
+import 'package:luar_sekolah_lms/features/auth_module/presentation/screens/home_screen.dart';
+import 'features/mycourse_module/presentation/screens/kelasku.dart';
 // import 'koin_ls.dart';
 import 'package:luar_sekolah_lms/utils/shared_helper.dart';
-import 'account_module/screens/akun.dart';
-import 'course_module/presentation/screens/kelas_terpopuler_screens.dart';
-import 'package:luar_sekolah_lms/todo_module/screens/todo_crud_screen.dart';
-import 'package:luar_sekolah_lms/course_module/presentation/bindings/course_bindings.dart';
+import 'features/account_module/screens/akun.dart';
+import 'features/course_module/presentation/screens/kelas_terpopuler_screens.dart';
+import 'package:luar_sekolah_lms/features/todo_module/screens/todo_crud_screen.dart';
+import 'package:luar_sekolah_lms/features/course_module/presentation/bindings/course_bindings.dart';
 import 'package:luar_sekolah_lms/app_config.dart';
 
 class MainShell extends StatefulWidget {
@@ -26,9 +26,7 @@ class _MainShellState extends State<MainShell> {
   late final List<Widget> _pages = [
     HomeScreen(), // Beranda
     KelasTerpopulerScreen(),
-    // CourseListScreen(),
     KelaskuScreen(),
-    // KoinLSScreen(),
     AkunScreen(),
     TodoCrudScreen(),
   ];
@@ -39,7 +37,7 @@ class _MainShellState extends State<MainShell> {
     CourseBindings(
       baseUrl: AppConfig.apiBaseUrl,
       token: StorageHelper.instance.getString('auth_token', defaultValue: ''),
-    ).dependencies(); // <- penting: ini yang mendaftarkan SEMUA use case
+    ).dependencies();
     _controller = PageController(initialPage: _currentIndex);
   }
 
@@ -90,12 +88,6 @@ class _MainShellState extends State<MainShell> {
             activeIcon: Icon(Iconsax.video5, size: 28),
             label: 'Kelasku',
           ),
-
-          // BottomNavigationBarItem(
-          //   icon: Icon(Iconsax.coin),
-          //   activeIcon: Icon(Iconsax.coin5, size: 28),
-          //   label: 'koinLS',
-          // ),
           BottomNavigationBarItem(
             icon: Icon(Iconsax.user),
             activeIcon: Icon(Iconsax.user_square, size: 28),

@@ -4,10 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:luar_sekolah_lms/router/app_router.dart';
-import 'package:luar_sekolah_lms/week_4/utils/validators.dart';
-import 'package:luar_sekolah_lms/week_9/presentation/controller/auth_controller.dart';
-import 'package:luar_sekolah_lms/week_9/presentation/screens/login_screen.dart';
-import 'package:luar_sekolah_lms/week_9/presentation/widgets/app_snackbar.dart';
+import 'package:luar_sekolah_lms/features/account_module/utils/validators.dart';
+import 'package:luar_sekolah_lms/features/auth_module/presentation/controller/auth_controller.dart';
+import 'package:luar_sekolah_lms/features/auth_module/presentation/screens/login_screen.dart';
+import 'package:luar_sekolah_lms/features/auth_module/presentation/widgets/app_snackbar.dart';
 
 String mapRegisterError(FirebaseAuthException e) {
   switch (e.code) {

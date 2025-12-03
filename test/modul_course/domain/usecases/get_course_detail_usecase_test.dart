@@ -2,9 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 // SESUAIKAN dengan struktur project-mu
-import 'package:luar_sekolah_lms/week_7/domain/entities/course_entity.dart';
-import 'package:luar_sekolah_lms/week_7/domain/repositories/course_repository.dart';
-import 'package:luar_sekolah_lms/week_7/domain/usecases/get_course_detail.dart';
+import 'package:luar_sekolah_lms/features/course_module/domain/entities/course_entity.dart';
+import 'package:luar_sekolah_lms/features/course_module/domain/repositories/course_repository.dart';
+import 'package:luar_sekolah_lms/features/course_module/domain/usecases/get_course_detail.dart';
 
 // Mock untuk CourseRepository
 class MockCourseRepository extends Mock implements CourseRepository {}

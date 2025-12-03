@@ -1,4 +1,4 @@
-import 'package:luar_sekolah_lms/week_9/domain/repositories/auth_repository.dart';
+import 'package:luar_sekolah_lms/features/auth_module/domain/repositories/auth_repository.dart';
 
 class Logout {
   final AuthRepository repository;

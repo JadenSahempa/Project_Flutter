@@ -2,11 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:get/get.dart';
 
-import 'package:luar_sekolah_lms/week_7/domain/entities/course_entity.dart';
-import 'package:luar_sekolah_lms/week_7/domain/usecases/get_popular_courses.dart';
-import 'package:luar_sekolah_lms/week_7/domain/usecases/delete_course.dart';
-import 'package:luar_sekolah_lms/week_7/presentation/controllers/course_controller.dart';
-import 'package:luar_sekolah_lms/week_7/domain/repositories/course_repository.dart'; // CoursePage ada di sini
+import 'package:luar_sekolah_lms/features/course_module/domain/entities/course_entity.dart';
+import 'package:luar_sekolah_lms/features/course_module/domain/usecases/get_popular_courses.dart';
+import 'package:luar_sekolah_lms/features/course_module/domain/usecases/delete_course.dart';
+import 'package:luar_sekolah_lms/features/course_module/presentation/controllers/course_controller.dart';
+import 'package:luar_sekolah_lms/features/course_module/domain/repositories/course_repository.dart'; // CoursePage ada di sini
 
 // ---- MOCKS ----
 class MockGetPopularCoursesUseCase extends Mock

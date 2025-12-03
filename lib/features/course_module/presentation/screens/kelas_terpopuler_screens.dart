@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:luar_sekolah_lms/week_7/presentation/widgets/tab_popular.dart';
+import 'package:luar_sekolah_lms/features/course_module/presentation/widgets/tab_popular.dart';
 
 class KelasTerpopulerScreen extends StatelessWidget {
   const KelasTerpopulerScreen({super.key});
