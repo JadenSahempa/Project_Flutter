@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:luar_sekolah_lms/features/auth_module/presentation/controller/auth_controller.dart';
+import 'package:luar_sekolah_lms/features/course_module/domain/entities/course_entity.dart';
+import 'package:luar_sekolah_lms/features/course_module/presentation/user/controllers/user_course_controller.dart';
+import 'package:luar_sekolah_lms/features/course_module/presentation/user/screens/course_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,15 +16,33 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _pageC = PageController();
   int _page = 0;
-  // int _currentIndex = 0;
 
-  // Ambil AuthController dari GetX
+  // Controller dari GetX
   final AuthController authC = Get.find<AuthController>();
+  final UserCourseController courseC = Get.find<UserCourseController>();
 
   @override
   void dispose() {
     _pageC.dispose();
     super.dispose();
+  }
+
+  double _ratingValue(CourseEntity c) {
+    if (c.rating == null) return 0;
+    return double.tryParse(c.rating!.trim()) ?? 0;
+  }
+
+  bool _hasValidRating(CourseEntity c) {
+    final raw = c.rating;
+    if (raw == null) return false;
+
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) return false;
+
+    final value = double.tryParse(trimmed);
+    if (value == null) return false;
+
+    return value > 0;
   }
 
   @override
@@ -33,25 +55,47 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              // ================= HEADER HIJAU =================
               Container(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
                 decoration: const BoxDecoration(color: green),
                 child: Row(
                   children: [
-                    const CircleAvatar(
-                      radius: 22,
-                      backgroundImage: AssetImage(
-                        'lib/assets/images/person.jpg',
-                      ),
-                    ),
+                    // 🔹 Avatar dinamis berdasarkan photoUrl profile
+                    Obx(() {
+                      final profile = authC.currentUserProfile.value;
+                      final photoUrl = profile?.photoUrl;
+
+                      return CircleAvatar(
+                        radius: 22,
+                        backgroundColor: Colors.teal.shade50,
+                        foregroundImage:
+                            (photoUrl != null && photoUrl.isNotEmpty)
+                            ? NetworkImage(photoUrl)
+                            : null,
+                        child: const Icon(Icons.person, color: Colors.white),
+                      );
+                    }),
                     const SizedBox(width: 12),
 
+                    // 🔹 Nama dinamis: profile.name > displayName > email > 'User'
                     Expanded(
                       child: Obx(() {
+                        final profile = authC.currentUserProfile.value;
                         final user = authC.currentUser.value;
-                        final name = (user?.displayName?.isNotEmpty ?? false)
-                            ? user!.displayName!
-                            : 'User';
+
+                        String name;
+
+                        if (profile?.name != null &&
+                            profile!.name!.trim().isNotEmpty) {
+                          name = profile.name!.trim();
+                        } else if (user?.displayName?.isNotEmpty ?? false) {
+                          name = user!.displayName!.trim();
+                        } else if (user?.email?.isNotEmpty ?? false) {
+                          name = user!.email!.trim();
+                        } else {
+                          name = 'User';
+                        }
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,6 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
+              // ================= BANNER SLIDER =================
               Container(
                 transform: Matrix4.translationValues(0, -18, 0),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -103,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: const [
                       BoxShadow(
-                        color: Color(0x14000000), // halus
+                        color: Color(0x14000000),
                         blurRadius: 14,
                         offset: Offset(0, 8),
                       ),
@@ -118,142 +163,29 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: PageView(
                             controller: _pageC,
                             onPageChanged: (i) => setState(() => _page = i),
-                            children: [
-                              // banner 1
-                              Stack(
-                                children: [
-                                  const Positioned.fill(
-                                    child: Image(
-                                      image: AssetImage(
-                                        'lib/assets/images/banner_1.png',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 10,
-                                    right: 10,
-                                    child: ElevatedButton(
-                                      onPressed: () {},
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.white
-                                            .withOpacity(0.9),
-                                        foregroundColor: Colors.black87,
-                                        elevation: 0,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                      ),
-                                      child: const Text('IKUTAN SEKARANG'),
-                                    ),
-                                  ),
-                                ],
+                            children: const [
+                              _HomeBanner(
+                                imagePath: 'lib/assets/images/banner_1.png',
+                                buttonText: 'IKUTAN SEKARANG',
                               ),
-                              // banner 2
-                              Stack(
-                                children: [
-                                  const Positioned.fill(
-                                    child: Image(
-                                      image: AssetImage(
-                                        'lib/assets/images/banner_2.png',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 10,
-                                    right: 10,
-                                    child: ElevatedButton(
-                                      onPressed: () {},
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.white
-                                            .withOpacity(0.9),
-                                        foregroundColor: Colors.black87,
-                                        elevation: 0,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                      ),
-                                      child: const Text('PELAJARI'),
-                                    ),
-                                  ),
-                                ],
+                              _HomeBanner(
+                                imagePath: 'lib/assets/images/banner_2.png',
+                                buttonText: 'PELAJARI',
                               ),
-                              // banner 3
-                              Stack(
-                                children: [
-                                  const Positioned.fill(
-                                    child: Image(
-                                      image: AssetImage(
-                                        'lib/assets/images/banner_3.png',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 10,
-                                    right: 10,
-                                    child: ElevatedButton(
-                                      onPressed: () {},
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.white
-                                            .withOpacity(0.9),
-                                        foregroundColor: Colors.black87,
-                                        elevation: 0,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                      ),
-                                      child: const Text('DAFTAR'),
-                                    ),
-                                  ),
-                                ],
+                              _HomeBanner(
+                                imagePath: 'lib/assets/images/banner_3.png',
+                                buttonText: 'DAFTAR',
                               ),
-                              // banner 4
-                              Stack(
-                                children: [
-                                  const Positioned.fill(
-                                    child: Image(
-                                      image: AssetImage(
-                                        'lib/assets/images/banner_4.png',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 10,
-                                    right: 10,
-                                    child: ElevatedButton(
-                                      onPressed: () {},
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.white
-                                            .withOpacity(0.9),
-                                        foregroundColor: Colors.black87,
-                                        elevation: 0,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                      ),
-                                      child: const Text('LIHAT DETAIL'),
-                                    ),
-                                  ),
-                                ],
+                              _HomeBanner(
+                                imagePath: 'lib/assets/images/banner_4.png',
+                                buttonText: 'LIHAT DETAIL',
                               ),
                             ],
                           ),
                         ),
                       ),
                       const SizedBox(height: 12),
-
-                      // dots: aktif hijau solid, lainnya ring abu-abu
+                      // dots indicator
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: List.generate(4, (i) {
@@ -279,6 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
+              // ================= PROGRAM DARI LUARSEKOLAH =================
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                 child: Column(
@@ -292,126 +225,26 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-
                     Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            height: 84,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x0F000000),
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.work_outline,
-                                  size: 26,
-                                  color: Colors.black87,
-                                ),
-                                SizedBox(height: 6),
-                                Text(
-                                  'Prakerja',
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          ),
+                      children: const [
+                        _ProgramCard(
+                          icon: Icons.work_outline,
+                          label: 'Prakerja',
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Container(
-                            height: 84,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x0F000000),
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.add_circle_outline,
-                                  size: 26,
-                                  color: Colors.black87,
-                                ),
-                                SizedBox(height: 6),
-                                Text('magang+', style: TextStyle(fontSize: 12)),
-                              ],
-                            ),
-                          ),
+                        SizedBox(width: 12),
+                        _ProgramCard(
+                          icon: Icons.add_circle_outline,
+                          label: 'magang+',
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Container(
-                            height: 84,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x0F000000),
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.subscriptions_outlined,
-                                  size: 26,
-                                  color: Colors.black87,
-                                ),
-                                SizedBox(height: 6),
-                                Text('Subs', style: TextStyle(fontSize: 12)),
-                              ],
-                            ),
-                          ),
+                        SizedBox(width: 12),
+                        _ProgramCard(
+                          icon: Icons.subscriptions_outlined,
+                          label: 'Subs',
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Container(
-                            height: 84,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x0F000000),
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.grid_view_rounded,
-                                  size: 26,
-                                  color: Colors.black87,
-                                ),
-                                SizedBox(height: 6),
-                                Text('Lainnya', style: TextStyle(fontSize: 12)),
-                              ],
-                            ),
-                          ),
+                        SizedBox(width: 12),
+                        _ProgramCard(
+                          icon: Icons.grid_view_rounded,
+                          label: 'Lainnya',
                         ),
                       ],
                     ),
@@ -419,6 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
+              // ================= REDEEM VOUCHER PRAKERJA =================
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                 child: Container(
@@ -491,559 +325,501 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              // ===== SECTION: Kelas Terpopuler di Prakerja =====
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: const Text(
-                  'Kelas Terpopuler di Prakerja',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                ),
-              ),
 
-              SizedBox(
-                height: 250,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    // ---- Card 1 ----
-                    Container(
-                      width: 260,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x14000000),
-                            blurRadius: 12,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Banner / thumbnail
-                          ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              topRight: Radius.circular(12),
-                            ),
-                            child: Image.asset(
-                              'lib/assets/images/judul_kelas_1.png',
-                              height: 90,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
+              // ================== BAGIAN POPULER (DINAMIS) ==================
+              Obx(() {
+                if (courseC.isLoadingCourses.value &&
+                    courseC.publishedCourses.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
 
-                          // Isi kartu
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // chips/tag
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFEEF5FF),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: const Text(
-                                        'LuarSekolah',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Color(0xFF1976D2),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    // Container(
-                                    //   padding: const EdgeInsets.symmetric(
-                                    //     horizontal: 8,
-                                    //     vertical: 4,
-                                    //   ),
-                                    //   decoration: BoxDecoration(
-                                    //     color: const Color(0xFFEFF7F2),
-                                    //     borderRadius: BorderRadius.circular(8),
-                                    //   ),
-                                    //   child: const Text(
-                                    //     'SPL',
-                                    //     style: TextStyle(
-                                    //       fontSize: 11,
-                                    //       color: Color(0xFF2E7D32),
-                                    //     ),
-                                    //   ),
-                                    // ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
+                final allCourses = courseC.publishedCourses;
 
-                                // Judul
-                                const Text(
-                                  'Judul kelas ke-1',
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontWeight: FontWeight.w700),
-                                ),
-                                const SizedBox(height: 8),
-
-                                // rating
-                                Row(
-                                  children: const [
-                                    Text(
-                                      '4.5 ',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      size: 16,
-                                      color: Color(0xFFFFB300),
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      size: 16,
-                                      color: Color(0xFFFFB300),
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      size: 16,
-                                      color: Color(0xFFFFB300),
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      size: 16,
-                                      color: Color(0xFFFFB300),
-                                    ),
-                                    Icon(
-                                      Icons.star_half,
-                                      size: 16,
-                                      color: Color(0xFFFFB300),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-
-                                // harga
-                                const Text(
-                                  'Rp 1.500.000',
-                                  style: TextStyle(fontWeight: FontWeight.w700),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                if (allCourses.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Belum ada kelas yang tersedia.',
+                        style: TextStyle(color: Colors.grey),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                  );
+                }
 
-                    // ---- Card 2 ----
-                    Container(
-                      width: 260,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x14000000),
-                            blurRadius: 12,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                        border: Border.all(color: Colors.grey.shade200),
+                // ================== 1. KELAS TERPOPULER (HANYA YANG PUNYA RATING) ==================
+                final ratedCourses = allCourses.where(_hasValidRating).toList();
+
+                // Sort: rating desc, lalu enrollmentCount desc
+                ratedCourses.sort((a, b) {
+                  final rb = _ratingValue(b);
+                  final ra = _ratingValue(a);
+
+                  if (rb.compareTo(ra) != 0) {
+                    return rb.compareTo(ra); // rating tertinggi dulu
+                  }
+                  // kalau rating sama, lihat jumlah peserta
+                  return b.enrollmentCount.compareTo(a.enrollmentCount);
+                });
+
+                final popularAll = ratedCourses.take(10).toList();
+
+                // ================== 2. KELAS SPL & PRAKERJA (SEMUA KELAS, RATING BOLEH KOSONG) ==================
+                bool hasTag(CourseEntity c, String tag) {
+                  final tags = c.categoryTag
+                      .map((e) => e.toString().toLowerCase())
+                      .toList();
+                  return tags.contains(tag.toLowerCase());
+                }
+
+                final splCourses = allCourses
+                    .where((c) => hasTag(c, 'spl'))
+                    .take(10)
+                    .toList();
+
+                final prakerjaCourses = allCourses
+                    .where((c) => hasTag(c, 'prakerja'))
+                    .take(10)
+                    .toList();
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (popularAll.isNotEmpty) ...[
+                      _PopularSection(
+                        title: 'Kelas Terpopuler',
+                        courses: popularAll,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              topRight: Radius.circular(12),
-                            ),
-                            child: Image.asset(
-                              'lib/assets/images/judul_kelas_2.png',
-                              height: 90,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // chips/tag
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFEEF5FF),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: const Text(
-                                        'LuarSekolah',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Color(0xFF1976D2),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    // (opsional) chip kedua :
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFEFF7F2),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: const Text(
-                                        'SPL',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Color(0xFF2E7D32),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
+                      const SizedBox(height: 16),
+                    ],
 
-                                // judul
-                                const Text(
-                                  'Judul kelas ke-2',
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontWeight: FontWeight.w700),
-                                ),
-                                const SizedBox(height: 8),
+                    _PopularSection(
+                      title: 'Kelas SPL',
+                      courses: splCourses,
+                      emptyText:
+                          'Belum ada kelas dengan tag SPL yang tersedia.',
+                    ),
+                    const SizedBox(height: 16),
 
-                                // rating
-                                Row(
-                                  children: const [
-                                    Text(
-                                      '4.5 ',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      size: 16,
-                                      color: Color(0xFFFFB300),
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      size: 16,
-                                      color: Color(0xFFFFB300),
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      size: 16,
-                                      color: Color(0xFFFFB300),
-                                    ),
-                                    Icon(
-                                      Icons.star,
-                                      size: 16,
-                                      color: Color(0xFFFFB300),
-                                    ),
-                                    Icon(
-                                      Icons.star_half,
-                                      size: 16,
-                                      color: Color(0xFFFFB300),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-
-                                // harga
-                                const Text(
-                                  'Rp 900.000',
-                                  style: TextStyle(fontWeight: FontWeight.w700),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                    _PopularSection(
+                      title: 'Kelas Prakerja',
+                      courses: prakerjaCourses,
+                      emptyText:
+                          'Belum ada kelas dengan tag Prakerja yang tersedia.',
                     ),
                   ],
-                ),
-              ),
+                );
+              }),
 
-              // link "Lihat Semua Kelas"
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      minimumSize: Size.zero,
-                    ),
-                    onPressed: () {},
-                    child: const Text(
-                      'Lihat Semua Kelas',
-                      style: TextStyle(
-                        color: Color(0xFF1976D2),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // ===== SECTION: Akses Semua Kelas dengan Berlangganan =====
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: const Text(
-                  'Akses Semua Kelas dengan Berlangganan',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                ),
-              ),
-
-              SizedBox(
-                height: 250,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    // ---- Card 1 ----
-                    Container(
-                      width: 260,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x14000000),
-                            blurRadius: 12,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              topRight: Radius.circular(12),
-                            ),
-                            child: Image.asset(
-                              'lib/assets/images/judul_kelas_3.png',
-                              height: 100,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.menu_book_outlined,
-                                      size: 16,
-                                      color: Colors.black54,
-                                    ),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      '5 Kelas Pembelajaran',
-                                      style: TextStyle(color: Colors.black54),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 6),
-                                Text(
-                                  'Belajar Judul Kelas ke - 1',
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontWeight: FontWeight.w700),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-
-                    // ---- Card 2 ----
-                    Container(
-                      width: 300,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x14000000),
-                            blurRadius: 12,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              topRight: Radius.circular(12),
-                            ),
-                            child: Image.asset(
-                              'lib/assets/images/judul_kelas_4.png',
-                              height: 100,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.menu_book_outlined,
-                                      size: 16,
-                                      color: Colors.black54,
-                                    ),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      '7 Kelas Pembelajaran',
-                                      style: TextStyle(color: Colors.black54),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 6),
-                                Text(
-                                  'Belajar judul kelas  ke - 2',
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontWeight: FontWeight.w700),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-
-                    // ---- Card 3  ----
-                  ],
-                ),
-              ),
-
-              // link "Lihat Semua"
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      minimumSize: Size.zero,
-                    ),
-                    onPressed: () {},
-                    child: const Text(
-                      'Lihat Semua',
-                      style: TextStyle(
-                        color: Color(0xFF1976D2),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              // Padding(
-              //   padding: EdgeInsets.all(16),
-              //   child: SizedBox(
-              //     height: 46,
-              //     width: double.infinity,
-              //     child: OutlinedButton(
-              //       style: OutlinedButton.styleFrom(
-              //         side: BorderSide(color: Colors.grey.shade500),
-              //         shape: RoundedRectangleBorder(
-              //           borderRadius: BorderRadius.circular(10),
-              //         ),
-              //         textStyle: const TextStyle(fontWeight: FontWeight.w700),
-              //       ),
-              //       onPressed: () {
-              //         Navigator.popUntil(context, (route) => route.isFirst);
-              //       },
-              //       child: const Text('Kembali'),
-              //     ),
-              //   ),
-              // ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   currentIndex: _currentIndex,
-      //   onTap: (index) {
-      //     setState(() {
-      //       _currentIndex = index;
-      //     });
-      //   },
-      //   // Custom styling
-      //   type: BottomNavigationBarType.shifting,
-      //   selectedItemColor: Colors.purple,
-      //   unselectedItemColor: Colors.grey,
-      //   showUnselectedLabels: true,
-      //   elevation: 8,
-      //   backgroundColor: Colors.white,
-      //   items: [
-      //     BottomNavigationBarItem(
-      //       icon: const Icon(Icons.home),
-      //       activeIcon: const Icon(Icons.home, size: 30),
-      //       label: 'Home',
-      //       backgroundColor: Colors.purple.shade50,
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: const Icon(Icons.search),
-      //       activeIcon: const Icon(Icons.search, size: 30),
-      //       label: 'Search',
-      //       backgroundColor: Colors.blue.shade50,
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: const Icon(Icons.favorite),
-      //       activeIcon: const Icon(Icons.favorite, size: 30),
-      //       label: 'Favorites',
-      //       backgroundColor: Colors.pink.shade50,
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: const Icon(Icons.person),
-      //       activeIcon: const Icon(Icons.person, size: 30),
-      //       label: 'Profile',
-      //       backgroundColor: Colors.teal.shade50,
-      //     ),
-      //   ],
-      // ),
+    );
+  }
+}
+
+// ================= SMALL WIDGETS =================
+
+class _HomeBanner extends StatelessWidget {
+  final String imagePath;
+  final String buttonText;
+
+  const _HomeBanner({required this.imagePath, required this.buttonText});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(child: Image.asset(imagePath, fit: BoxFit.cover)),
+        Positioned(
+          bottom: 10,
+          right: 10,
+          child: ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white.withOpacity(0.9),
+              foregroundColor: Colors.black87,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: Text(buttonText),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProgramCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _ProgramCard({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        height: 84,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0F000000),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 26, color: Colors.black87),
+            const SizedBox(height: 6),
+            Text(label, style: const TextStyle(fontSize: 12)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PopularSection extends StatelessWidget {
+  final String title;
+  final List<CourseEntity> courses;
+  final String? emptyText;
+
+  const _PopularSection({
+    required this.title,
+    required this.courses,
+    this.emptyText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Text(
+            title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
+        ),
+        SizedBox(
+          height: 250,
+          child: courses.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      emptyText ?? 'Belum ada kelas untuk kategori ini.',
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                )
+              : ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: courses.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemBuilder: (context, index) {
+                    final course = courses[index];
+                    return _PopularCourseCard(course: course);
+                  },
+                ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                minimumSize: Size.zero,
+              ),
+              onPressed: () {
+                // Nanti bisa diarahkan ke halaman "Kelas" dengan filter.
+                Get.snackbar(
+                  'Info',
+                  'Gunakan tab "Kelas" untuk melihat daftar lengkap.',
+                  snackPosition: SnackPosition.BOTTOM,
+                  margin: const EdgeInsets.all(16),
+                );
+              },
+              child: const Text(
+                'Lihat Semua Kelas',
+                style: TextStyle(
+                  color: Color(0xFF1976D2),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PopularCourseCard extends StatelessWidget {
+  final CourseEntity course;
+
+  _PopularCourseCard({super.key, required this.course});
+
+  List<String> _displayTags() {
+    if (course.categoryTag.isEmpty) {
+      return const ['Kelas'];
+    }
+
+    final lowerTags = course.categoryTag
+        .map((e) => e.toString().toLowerCase())
+        .toList();
+
+    final List<String> result = [];
+
+    if (lowerTags.contains('spl')) {
+      result.add('SPL');
+    }
+    if (lowerTags.contains('prakerja')) {
+      result.add('Prakerja');
+    }
+
+    if (result.isEmpty) {
+      result.addAll(course.categoryTag.map((e) => e.toString()));
+    }
+
+    return result.take(2).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final userCourseC = Get.find<UserCourseController>();
+    final rating = (course.rating == null || course.rating!.trim().isEmpty)
+        ? null
+        : course.rating;
+    final priceText = (course.price == '0.00' || course.price == '0')
+        ? 'Gratis'
+        : 'Rp ${course.price}';
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () async {
+        await userCourseC.loadCourseDetail(course.id, course);
+        Get.to(() => CourseDetailScreen(courseId: course.id));
+      },
+      child: Container(
+        width: 260,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x14000000),
+              blurRadius: 12,
+              offset: Offset(0, 6),
+            ),
+          ],
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // thumbnail
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+              child: Container(
+                height: 90,
+                width: double.infinity,
+                color: Colors.grey.shade300,
+                child: course.thumbnail == null
+                    ? const Icon(
+                        Icons.image_outlined,
+                        size: 40,
+                        color: Colors.white,
+                      )
+                    : Image.network(
+                        course.thumbnail!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const Center(
+                          child: Icon(
+                            Icons.broken_image_outlined,
+                            size: 40,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+
+            // isi kartu
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      for (final tag in _displayTags())
+                        Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEFF7F2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              tag,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFF2E7D32),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+                    course.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 8),
+
+                  if (rating != null) ...[
+                    Row(
+                      children: [
+                        Text(
+                          '$rating ',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        const Icon(
+                          Icons.star,
+                          size: 16,
+                          color: Color(0xFFFFB300),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                  ] else ...[
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Belum ada rating',
+                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+
+                  Text(
+                    priceText,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SubscriptionCard extends StatelessWidget {
+  final String imagePath;
+  final String countText;
+  final String title;
+
+  const _SubscriptionCard({
+    required this.imagePath,
+    required this.countText,
+    required this.title,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 280,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 12,
+            offset: Offset(0, 6),
+          ),
+        ],
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(12),
+              topRight: Radius.circular(12),
+            ),
+            child: Image.asset(
+              imagePath,
+              height: 100,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.menu_book_outlined,
+                      size: 16,
+                      color: Colors.black54,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      countText,
+                      style: const TextStyle(color: Colors.black54),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

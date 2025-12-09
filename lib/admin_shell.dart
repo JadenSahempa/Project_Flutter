@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:luar_sekolah_lms/features/account_module/screens/akun.dart';
+import 'package:luar_sekolah_lms/features/account_module/screens/akun_admin.dart';
+// import 'package:get/get.dart';
+import 'package:luar_sekolah_lms/features/auth_module/presentation/screens/admin_dashboard_screen.dart';
+
+import 'package:luar_sekolah_lms/features/course_module/presentation/admin/screens/kelas_terpopuler_screens.dart';
+import 'package:luar_sekolah_lms/features/course_module/presentation/course_bindings.dart';
 
 class AdminShell extends StatefulWidget {
   const AdminShell({super.key});
@@ -13,9 +18,15 @@ class _AdminShellState extends State<AdminShell> {
 
   late final List<Widget> _pages = [
     const AdminDashboardScreen(),
-    const AdminCourseListScreen(),
-    const AkunScreen(), // Akun yang sama, tapi akan nunjukin role: Admin
+    const KelasTerpopulerScreen(),
+    const AdminAccountScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    CourseBindings().dependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,47 +45,6 @@ class _AdminShellState extends State<AdminShell> {
           BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Kursus'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
         ],
-      ),
-    );
-  }
-}
-
-/// Placeholder untuk dashboard admin
-class AdminDashboardScreen extends StatelessWidget {
-  const AdminDashboardScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text(
-          'Dashboard Admin\n(nanti isi ringkasan, statistik, dsb)',
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-}
-
-/// Placeholder untuk kelola course
-class AdminCourseListScreen extends StatelessWidget {
-  const AdminCourseListScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Kelola Kursus')),
-      body: const Center(
-        child: Text(
-          'Daftar kursus untuk Admin\n(nanti dihubungkan ke Course module)',
-          textAlign: TextAlign.center,
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: arahkan ke halaman CreateCourse
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }

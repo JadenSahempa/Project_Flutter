@@ -28,15 +28,9 @@ class AppRouter {
     switch (s.name) {
       case RouteNames.login:
         return _fadeSlide(const LoginScreen());
-      case RouteNames.shell:
-        return _fadeSlide(const MainShell());
       default:
         return _fadeSlide(const LoginScreen());
     }
-  }
-
-  static void goToShell(BuildContext context) {
-    Navigator.of(context).pushReplacementNamed(RouteNames.shell);
   }
 
   static void goToLoginClearingStack(BuildContext context) {

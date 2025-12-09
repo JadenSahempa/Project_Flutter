@@ -6,6 +6,7 @@ class GetCourseDetailUseCase {
 
   GetCourseDetailUseCase(this.repository);
 
+  /// Ambil detail 1 course berdasarkan [id].
   Future<CourseEntity> call(String id) {
     return repository.getCourseById(id);
   }

@@ -13,11 +13,17 @@ class CoursePage {
 }
 
 abstract class CourseRepository {
-  Future<CoursePage> getCourses({
-    required int limit,
-    required int offset,
-    List<String>? categoryTag,
-  });
+  /// List course untuk admin (bisa dipakai user juga nanti).
+  Future<List<CourseEntity>> getCourses();
+
+  /// Detail satu course.
+  Future<CourseEntity> getCourseById(String id);
+
+  // Future<CoursePage> getCourses({
+  //   required int limit,
+  //   required int offset,
+  //   List<String>? categoryTag,
+  // });
 
   Future<CourseEntity> createCourse({
     required String name,
@@ -25,17 +31,20 @@ abstract class CourseRepository {
     String price = '0.00',
     String? rating,
     String? thumbnail,
+    String? description,
+    String status = 'draft',
+    required String createdBy,
   });
-
-  Future<CourseEntity> getCourseById(String id);
 
   Future<CourseEntity> updateCourse({
     required String id,
     required String name,
     required List<String> categoryTag,
-    String price = '0.00',
+    String? price,
     String? rating,
     String? thumbnail,
+    String? description,
+    String? status,
   });
 
   Future<void> deleteCourse(String id);

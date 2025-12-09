@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 import 'package:luar_sekolah_lms/features/account_module/utils/validators.dart';
+import 'package:luar_sekolah_lms/features/auth_module/presentation/controller/auth_controller.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -14,14 +17,43 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _nameC = TextEditingController(text: 'Ahmad Sahroni');
   final _dobC = TextEditingController();
   final _addressC = TextEditingController();
+
+  /// ✅ URL foto profil (nanti bisa diisi dari data user Firestore)
+  final _photoUrlC = TextEditingController(
+    text:
+        'https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?w=400', // dummy awal
+  );
+
   String? _gender;
   String? _jobStatus;
+  String _role = 'student'; // default kalau belum ada
+
+  late final AuthController _authC;
+
+  @override
+  void initState() {
+    super.initState();
+    _authC = Get.find<AuthController>();
+
+    // 🔹 Prefill dari profile user jika sudah ada di AuthController
+    final profile = _authC.currentUserProfile.value;
+    if (profile != null) {
+      _nameC.text = profile.name ?? _nameC.text;
+      _photoUrlC.text = profile.photoUrl ?? _photoUrlC.text;
+      _dobC.text = profile.dob ?? '';
+      _gender = profile.gender;
+      _jobStatus = profile.jobStatus;
+      _addressC.text = profile.address ?? '';
+      _role = profile.role ?? 'student';
+    }
+  }
 
   @override
   void dispose() {
     _nameC.dispose();
     _dobC.dispose();
     _addressC.dispose();
+    _photoUrlC.dispose();
     super.dispose();
   }
 
@@ -32,12 +64,54 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _jobStatus != null &&
       _addressC.text.trim().length >= 10;
 
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ Data valid & siap disimpan!')),
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    await _authC.updateProfile(
+      context: context,
+      name: _nameC.text.trim(),
+      photoUrl: _photoUrlC.text.trim().isEmpty ? null : _photoUrlC.text.trim(),
+      dob: _dobC.text.trim().isEmpty ? null : _dobC.text.trim(),
+      gender: _gender,
+      jobStatus: _jobStatus,
+      address: _addressC.text.trim().isEmpty ? null : _addressC.text.trim(),
+    );
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('✅ Profil berhasil disimpan!')),
+    );
+
+    // Optional: tutup layar
+    // Navigator.of(context).pop();
+  }
+
+  /// 🔹 Helper: bangun avatar dari URL atau tampilkan placeholder
+  Widget _buildAvatar({double radius = 50}) {
+    final url = _photoUrlC.text.trim();
+
+    if (url.isEmpty) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.teal.shade50,
+        child: Icon(Icons.person, size: radius, color: Colors.teal.shade700),
       );
     }
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: Colors.grey[200],
+      foregroundImage: NetworkImage(url),
+      child: Icon(Icons.person, size: radius, color: Colors.grey[400]),
+    );
+  }
+
+  String get _greetingText {
+    if (_role == 'admin') {
+      return 'Kelola profilmu sebagai Admin,';
+    }
+    return 'Semangat Belajarnya,';
   }
 
   @override
@@ -56,30 +130,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CircleAvatar(
-                          radius: 24,
-                          backgroundImage: AssetImage(
-                            'lib/assets/images/person3.jpg',
-                          ),
-                        ),
-                        SizedBox(width: 12),
+                        // 🔹 Avatar kecil di header pakai URL juga
+                        _buildAvatar(radius: 24),
+                        const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Semangat Belajarnya,',
-                              style: TextStyle(
+                              _greetingText,
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
-                              'Ahmad Sahroni',
-                              style: TextStyle(
+                              _nameC.text,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -90,34 +160,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                     const SizedBox(height: 18),
 
-                    // Tombol navigasi
-                    ConstrainedBox(
-                      constraints: const BoxConstraints.tightFor(
-                        width: 350,
-                        height: 45,
-                      ),
-                      child: OutlinedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.grid_view_rounded, size: 18),
-                        label: const Text(
-                          'Buka Navigasi Menu',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Avatar edit foto
                     const Text(
                       'Edit Profile',
                       style: TextStyle(
@@ -126,21 +168,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
+
+                    // 🔹 Avatar besar + tombol hapus
                     Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        const CircleAvatar(
-                          radius: 50,
-                          backgroundImage: AssetImage(
-                            'lib/assets/images/person3.jpg',
-                          ),
-                        ),
+                        _buildAvatar(radius: 50),
                         Positioned(
                           top: -4,
                           right: -4,
                           child: IconButton(
                             onPressed: () {
-                              debugPrint('Foto dihapus!');
+                              _photoUrlC.clear();
+                              setState(() {});
                             },
                             icon: const Icon(
                               Icons.delete,
@@ -160,31 +200,39 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'Upload foto baru dengan ukuran < 1 MB,\ndan bertipe JPG atau PNG.',
+                      'Tempel URL foto profil kamu (JPG/PNG).\n'
+                      'Contoh: link dari Firebase Storage atau hosting gambar.',
                       style: TextStyle(fontSize: 14, color: Colors.black),
                     ),
                     const SizedBox(height: 16),
+
+                    // 🔹 Input URL Foto Profil
                     ConstrainedBox(
                       constraints: const BoxConstraints.tightFor(
                         width: 350,
-                        height: 45,
+                        height: 48,
                       ),
-                      child: OutlinedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.image_outlined, size: 18),
-                        label: const Text(
-                          'Upload Foto',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                      child: TextFormField(
+                        controller: _photoUrlC,
+                        onChanged: (_) => setState(() {}),
+                        decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.link),
+                          hintText: 'URL foto profil (opsional)',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
                           ),
                         ),
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                        validator: (v) {
+                          final text = v?.trim() ?? '';
+                          if (text.isEmpty) return null; // opsional
+                          final uri = Uri.tryParse(text);
+                          if (uri == null || !uri.isAbsolute) {
+                            return 'URL tidak valid';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                   ],
@@ -236,9 +284,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                         // Tanggal Lahir
                         const Text('Tanggal Lahir'),
-
                         const SizedBox(height: 6),
-
                         TextFormField(
                           controller: _dobC,
                           readOnly: true,
@@ -274,7 +320,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         const Text('Jenis Kelamin'),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
-                          initialValue: _gender,
+                          value: _gender,
                           onChanged: (v) => setState(() => _gender = v),
                           items: const [
                             DropdownMenuItem(
@@ -306,7 +352,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         const Text('Status Pekerjaan'),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
-                          initialValue: _jobStatus,
+                          value: _jobStatus,
                           onChanged: (v) => setState(() => _jobStatus = v),
                           items: const [
                             DropdownMenuItem(
@@ -334,8 +380,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               vertical: 12,
                             ),
                           ),
-                          validator: (v) =>
-                              Validators.jobSelected(v, field: 'jenis kelamin'),
+                          validator: (v) => Validators.jobSelected(
+                            v,
+                            field: 'status pekerjaan',
+                          ),
                         ),
 
                         const SizedBox(height: 14),
