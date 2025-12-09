@@ -1,28 +1,8 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:luar_sekolah_lms/router/app_router.dart';
 import 'package:luar_sekolah_lms/features/account_module/utils/validators.dart';
 import 'package:luar_sekolah_lms/features/auth_module/presentation/controller/auth_controller.dart';
 import 'package:luar_sekolah_lms/features/auth_module/presentation/screens/login_screen.dart';
-import 'package:luar_sekolah_lms/features/auth_module/presentation/widgets/app_snackbar.dart';
-
-String mapRegisterError(FirebaseAuthException e) {
-  switch (e.code) {
-    case 'email-already-in-use':
-      return 'Email ini sudah terdaftar. Coba login atau gunakan email lain.';
-    case 'invalid-email':
-      return 'Format email tidak valid.';
-    case 'weak-password':
-      return 'Password terlalu lemah. Gunakan kombinasi huruf dan angka.';
-    case 'operation-not-allowed':
-      return 'Metode email/password belum diaktifkan di Firebase.';
-    default:
-      return 'Gagal registrasi: ${e.message ?? 'Terjadi kesalahan. Coba lagi.'}';
-  }
-}
 
 class RegisterScreen extends GetView<AuthController> {
   const RegisterScreen({super.key});
@@ -36,62 +16,6 @@ class RegisterScreen extends GetView<AuthController> {
     final passC = TextEditingController();
 
     final formKey = GlobalKey<FormState>();
-
-    Future<void> onSubmit() async {
-      final form = formKey.currentState!;
-      final ok = form.validate();
-
-      if (!ok) {
-        showErrorSnackBar(context, '⚠️ Periksa kembali data registrasimu');
-        return;
-      }
-
-      if (!controller.isHumanCheckedRegister.value) {
-        showErrorSnackBar(context, 'Centang "I\'m not a robot" dulu ya');
-        return;
-      }
-
-      controller.isRegisterLoading.value = true;
-      try {
-        // 1️⃣ Daftarkan user ke Firebase
-        await controller.register(
-          name: nameC.text.trim(),
-          email: emailC.text.trim(),
-          password: passC.text.trim(),
-        );
-
-        final user = controller.currentUser.value;
-
-        if (user != null) {
-          final name = (user.displayName?.isNotEmpty ?? false)
-              ? user.displayName!
-              : (user.email ?? 'User');
-
-          // Tampilkan snackbar sukses
-          showSuccessSnackBar(
-            context,
-            'Registrasi berhasil 🎉\nSilakan login, $name',
-          );
-
-          // Logout dulu supaya tidak auto login ke dashboard
-          await controller.logout();
-
-          // Arahkan ke halaman login, bersihkan stack
-          if (!context.mounted) return;
-          AppRouter.goToLoginClearingStack(context);
-        }
-      } on FirebaseAuthException catch (e) {
-        final msg = mapRegisterError(e); // fungsi mapper yang kemarin
-        showErrorSnackBar(context, msg);
-      } catch (_) {
-        showErrorSnackBar(
-          context,
-          'Terjadi kesalahan tak terduga saat registrasi. Coba lagi.',
-        );
-      } finally {
-        controller.isRegisterLoading.value = false;
-      }
-    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('Register')),
@@ -333,7 +257,14 @@ class RegisterScreen extends GetView<AuthController> {
                       child: ElevatedButton(
                         onPressed: controller.isRegisterLoading.value
                             ? null
-                            : onSubmit,
+                            : () => controller.submitRegister(
+                                context,
+                                formKey,
+                                nameC: nameC,
+                                emailC: emailC,
+                                numberC: numberC,
+                                passC: passC,
+                              ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2E7D5A),
                           shape: RoundedRectangleBorder(

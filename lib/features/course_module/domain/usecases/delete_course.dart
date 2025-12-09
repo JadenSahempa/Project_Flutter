@@ -5,6 +5,7 @@ class DeleteCourseUseCase {
 
   DeleteCourseUseCase(this.repository);
 
+  /// Hapus course berdasarkan [id].
   Future<void> call(String id) {
     return repository.deleteCourse(id);
   }

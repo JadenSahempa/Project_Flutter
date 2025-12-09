@@ -1,4 +1,5 @@
 import '../../domain/entities/course_entity.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CourseModel extends CourseEntity {
   CourseModel({
@@ -8,38 +9,53 @@ class CourseModel extends CourseEntity {
     required super.categoryTag,
     required super.thumbnail,
     required super.rating,
+    required super.description,
+    required super.status,
+    required super.enrollmentCount,
+    super.reviewCount, // ⬅️ boleh null → default di entity = 0
     required super.createdBy,
     required super.createdAt,
     required super.updatedAt,
   });
 
-  factory CourseModel.fromJson(Map<String, dynamic> j) {
+  factory CourseModel.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data() ?? {};
+
     return CourseModel(
-      id: j['id'] as String,
-      name: j['name'] as String? ?? '',
-      price: j['price'] as String? ?? '0.00',
+      id: doc.id,
+      name: data['name'] as String? ?? '',
+      price: data['price'] as String? ?? '0.00',
       categoryTag:
-          (j['categoryTag'] as List?)?.map((e) => e.toString()).toList() ??
+          (data['categoryTag'] as List?)?.map((e) => e.toString()).toList() ??
           const [],
-      thumbnail: j['thumbnail'] as String?,
-      rating: j['rating']?.toString(),
-      createdBy: j['createdBy'] as String? ?? '',
-      createdAt: DateTime.tryParse(j['createdAt'] ?? '') ?? DateTime.now(),
-      updatedAt: DateTime.tryParse(j['updatedAt'] ?? '') ?? DateTime.now(),
+      thumbnail: data['thumbnail'] as String?,
+      rating: data['rating']?.toString(), // bisa null / double / string
+      description: data['description'] as String? ?? '',
+      status: data['status'] as String? ?? 'draft',
+      enrollmentCount: (data['enrollmentCount'] as num?)?.toInt() ?? 0,
+      reviewCount:
+          (data['reviewCount'] as num?)?.toInt() ??
+          0, // ⬅️ PAKAI data, BUKAN map
+      createdBy: data['createdBy'] as String? ?? '',
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'name': name,
       'price': price,
       'categoryTag': categoryTag,
       'thumbnail': thumbnail,
       'rating': rating,
+      'description': description,
+      'status': status,
+      'enrollmentCount': enrollmentCount,
+      'reviewCount': reviewCount, // ⬅️ baru
       'createdBy': createdBy,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'createdAt': Timestamp.fromDate(createdAt),
+      'updatedAt': Timestamp.fromDate(updatedAt),
     };
   }
 }

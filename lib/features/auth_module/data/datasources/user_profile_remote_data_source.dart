@@ -18,8 +18,14 @@ class UserProfileRemoteDataSourceImpl implements UserProfileRemoteDataSource {
       'email': user.email,
       'name': user.name,
       'role': user.role,
-      'createdAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+      // 🔹 field tambahan
+      'photoUrl': user.photoUrl,
+      'dob': user.dob,
+      'gender': user.gender,
+      'jobStatus': user.jobStatus,
+      'address': user.address,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true)); // merge = bisa dipakai sebagai "update"
   }
 
   @override
@@ -36,6 +42,12 @@ class UserProfileRemoteDataSourceImpl implements UserProfileRemoteDataSource {
       email: data['email'] as String,
       name: data['name'] as String?,
       role: (data['role'] as String?) ?? 'student',
+      // 🔹 baca field tambahan (boleh null)
+      photoUrl: data['photoUrl'] as String?,
+      dob: data['dob'] as String?,
+      gender: data['gender'] as String?,
+      jobStatus: data['jobStatus'] as String?,
+      address: data['address'] as String?,
     );
   }
 }

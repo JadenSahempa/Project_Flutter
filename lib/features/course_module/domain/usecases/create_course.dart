@@ -6,12 +6,20 @@ class CreateCourseUseCase {
 
   CreateCourseUseCase(this.repository);
 
+  /// Buat course baru.
+  ///
+  /// Catatan:
+  /// - [status] untuk admin kita default 'draft'.
+  /// - [createdBy] = uid admin (ambil dari FirebaseAuth.currentUser.uid di controller).
   Future<CourseEntity> call({
     required String name,
     required List<String> categoryTag,
     String price = '0.00',
     String? rating,
     String? thumbnail,
+    String? description,
+    String status = 'draft',
+    required String createdBy,
   }) {
     return repository.createCourse(
       name: name,
@@ -19,6 +27,9 @@ class CreateCourseUseCase {
       price: price,
       rating: rating,
       thumbnail: thumbnail,
+      description: description,
+      status: status,
+      createdBy: createdBy,
     );
   }
 }

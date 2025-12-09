@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:luar_sekolah_lms/features/course_module/domain/entities/course_entity.dart';
 import 'package:luar_sekolah_lms/features/course_module/domain/usecases/get_popular_courses.dart';
 import 'package:luar_sekolah_lms/features/course_module/domain/usecases/delete_course.dart';
-import 'package:luar_sekolah_lms/features/course_module/presentation/controllers/course_controller.dart';
+import 'package:luar_sekolah_lms/features/course_module/presentation/admin/controllers/course_controller.dart';
 import 'package:luar_sekolah_lms/features/course_module/domain/repositories/course_repository.dart'; // CoursePage ada di sini
 
 // ---- MOCKS ----

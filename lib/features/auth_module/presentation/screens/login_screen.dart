@@ -1,84 +1,21 @@
+// login_screen.dart
+
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:luar_sekolah_lms/router/app_router.dart';
 import 'package:luar_sekolah_lms/features/account_module/utils/validators.dart';
-import 'package:luar_sekolah_lms/main_example.dart';
+import 'package:luar_sekolah_lms/assets/images/main_example.dart';
 import 'package:luar_sekolah_lms/features/auth_module/presentation/controller/auth_controller.dart';
 import 'package:luar_sekolah_lms/features/auth_module/presentation/screens/register_screen.dart';
-import 'package:luar_sekolah_lms/features/auth_module/presentation/widgets/app_snackbar.dart';
-
-String mapLoginError(FirebaseAuthException e) {
-  switch (e.code) {
-    case 'user-not-found':
-      return 'Akun dengan email tersebut tidak ditemukan.';
-    case 'wrong-password':
-      return 'Password yang kamu masukkan salah.';
-    case 'invalid-email':
-      return 'Format email tidak valid.';
-    case 'user-disabled':
-      return 'Akun ini telah dinonaktifkan.';
-    default:
-      return 'Gagal Login, Silahkan Masukan Email dan Password dengan Benar';
-  }
-}
 
 class LoginScreen extends GetView<AuthController> {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key}); // ⬅️ BALIK JADI const lagi
 
   @override
   Widget build(BuildContext context) {
-    final emailC = TextEditingController();
-    final passC = TextEditingController();
+    // ⬅️ formKey jadi lokal di dalam build
     final formKey = GlobalKey<FormState>();
-
-    Future<void> onSubmit() async {
-      final form = formKey.currentState!;
-      final ok = form.validate();
-
-      if (!ok) {
-        showErrorSnackBar(
-          context,
-          '⚠️ Periksa kembali email dan password kamu',
-        );
-        return;
-      }
-
-      if (!controller.isHumanCheckedLogin.value) {
-        showErrorSnackBar(context, 'Centang "I\'m not a robot" dulu ya');
-        return;
-      }
-
-      try {
-        await controller.login(
-          email: emailC.text.trim(),
-          password: passC.text.trim(),
-        );
-
-        final user = controller.currentUser.value;
-        if (user != null) {
-          final name = (user.displayName?.isNotEmpty ?? false)
-              ? user.displayName!
-              : (user.email ?? 'User');
-
-          showSuccessSnackBar(
-            context,
-            'Berhasil login. Selamat datang, $name 👋',
-          );
-        }
-      } on FirebaseAuthException catch (e) {
-        // 🔥 error salah email/pass, dsb
-        final msg = mapLoginError(e);
-        showErrorSnackBar(context, msg);
-      } catch (_) {
-        showErrorSnackBar(
-          context,
-          'Terjadi kesalahan tak terduga. Coba lagi beberapa saat lagi.',
-        );
-      }
-    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
@@ -109,7 +46,7 @@ class LoginScreen extends GetView<AuthController> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Form(
-            key: formKey,
+            key: formKey, // ⬅️ pakai formKey lokal
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -157,7 +94,7 @@ class LoginScreen extends GetView<AuthController> {
                 const Text('Email'),
                 const SizedBox(height: 6),
                 TextFormField(
-                  controller: emailC,
+                  controller: controller.emailC,
                   validator: Validators.validateEmail,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
@@ -175,7 +112,7 @@ class LoginScreen extends GetView<AuthController> {
 
                 Obx(
                   () => TextFormField(
-                    controller: passC,
+                    controller: controller.passC,
                     obscureText: controller.obscureLoginPassword.value,
                     validator: Validators.validatePassword,
                     decoration: InputDecoration(
@@ -250,7 +187,7 @@ class LoginScreen extends GetView<AuthController> {
                     child: ElevatedButton(
                       onPressed: controller.isLoginLoading.value
                           ? null
-                          : onSubmit,
+                          : () => controller.submitLogin(context, formKey),
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

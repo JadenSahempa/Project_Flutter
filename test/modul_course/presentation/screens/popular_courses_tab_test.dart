@@ -3,13 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:luar_sekolah_lms/features/course_module/presentation/widgets/tab_popular.dart';
-import 'package:luar_sekolah_lms/features/course_module/presentation/controllers/course_controller.dart';
+import 'package:luar_sekolah_lms/features/course_module/presentation/admin/widgets/tab_popular.dart';
+import 'package:luar_sekolah_lms/features/course_module/presentation/admin/controllers/course_controller.dart';
 import 'package:luar_sekolah_lms/features/course_module/domain/usecases/get_popular_courses.dart';
 import 'package:luar_sekolah_lms/features/course_module/domain/usecases/delete_course.dart';
 import 'package:luar_sekolah_lms/features/course_module/domain/entities/course_entity.dart';
 // import PaginationController supaya bisa dipakai di TestCourseController
-import 'package:luar_sekolah_lms/features/course_module/presentation/controllers/pagination_controller.dart';
+import 'package:luar_sekolah_lms/features/course_module/presentation/admin/controllers/pagination_controller.dart';
 
 // ---------- MOCKS ----------
 
