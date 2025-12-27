@@ -9,6 +9,13 @@ This project is built using **Flutter**, **Firebase**, and **GetX**, following a
 
 ---
 
+## 👨‍💻 Developer
+
+**Samuel Jaden Gill Sahempa, S.Kom**  
+Mobile Developer — Final Project (Project-Based Internship, 2025)
+
+---
+
 ## 🌟 Key Features
 
 ### 🔐 1. Authentication Module
@@ -75,37 +82,7 @@ This project is built using **Flutter**, **Firebase**, and **GetX**, following a
 
 The project uses a **feature-based modular structure** with a simplified Clean Architecture pattern (Data → Domain → Presentation).
 
-lib/
-├─ admin_shell.dart
-├─ app_config.dart
-├─ features/
-│ ├─ auth_module/
-│ │ ├─ data/
-│ │ ├─ domain/
-│ │ └─ presentation/
-│ │
-│ ├─ course_module/
-│ │ ├─ data/
-│ │ ├─ domain/
-│ │ └─ presentation/
-│ │
-│ ├─ mycourse_module/
-│ │ ├─ data/
-│ │ ├─ domain/
-│ │ └─ presentation/
-│ │
-│ ├─ todo_module/
-│ │ ├─ data/
-│ │ ├─ domain/
-│ │ └─ presentation/
-│ │
-│ └─ account_module/
-│ ├─ data/
-│ ├─ domain/
-│ └─ presentation/
-│
-├─ routes/
-└─ firebase_options.dart
+![alt text](https://github.com/JadenSahempa/Project_Flutter/blob/main/lib/assets/images/Folder%20Structure.png?raw=true)
 
 
 **Notes:**  
@@ -125,6 +102,22 @@ lib/
 | Local Storage       | SharedPreferences |
 | Architecture        | Modular Clean Architecture |
 | Firebase Setup      | FlutterFire CLI |
+
+---
+
+## 📱 Application Screens
+
+| Login | Register | User Dashboard |
+|------|----------|----------------|
+| ![](https://github.com/JadenSahempa/Project_Flutter/blob/feat/final-course-module-revision-and-refactoring/lib/assets/images/AppLogin.png?raw=true) | ![](https://github.com/JadenSahempa/Project_Flutter/blob/feat/final-course-module-revision-and-refactoring/lib/assets/images/AppRegister.png?raw=true) | ![](https://github.com/JadenSahempa/Project_Flutter/blob/feat/final-course-module-revision-and-refactoring/lib/assets/images/DashboardUser.png?raw=true) |
+
+| Admin Dashboard | Course | My Course |
+|----------------|--------|-----------|
+| ![](https://github.com/JadenSahempa/Project_Flutter/blob/feat/final-course-module-revision-and-refactoring/lib/assets/images/DashboardAdmin.png?raw=true) | ![](https://github.com/JadenSahempa/Project_Flutter/blob/feat/final-course-module-revision-and-refactoring/lib/assets/images/ClassModule.png?raw=true) | ![](https://github.com/JadenSahempa/Project_Flutter/blob/feat/final-course-module-revision-and-refactoring/lib/assets/images/MyClassModule.png?raw=true) |
+
+| Todo | Admin Course | Account |
+|------|--------------|---------|
+| ![](https://github.com/JadenSahempa/Project_Flutter/blob/feat/final-course-module-revision-and-refactoring/lib/assets/images/TodoListModule.png?raw=true) | ![](https://github.com/JadenSahempa/Project_Flutter/blob/feat/final-course-module-revision-and-refactoring/lib/assets/images/ClassCourseAdmin.png?raw=true) | ![](https://github.com/JadenSahempa/Project_Flutter/blob/feat/final-course-module-revision-and-refactoring/lib/assets/images/AccountModule.png?raw=true) |
 
 ---
 
@@ -196,7 +189,3 @@ Admin Flow
 - Dashboard metrics for Admin
 - Push notifications via Firebase Cloud Messaging
 - Improved analytics for user learning progress
-
-👨‍💻 Developer
-Samuel Jaden Gill Sahempa, S.Kom
-Mobile Developer – Final Internship Project 2025
