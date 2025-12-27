@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:luar_sekolah_lms/features/course_module/domain/entities/course_entity.dart';
 import 'package:luar_sekolah_lms/features/course_module/domain/entities/course_progress_entity.dart';
 import 'package:luar_sekolah_lms/features/course_module/domain/entities/lesson_entity.dart';
 

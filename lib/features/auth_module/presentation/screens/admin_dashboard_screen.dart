@@ -380,24 +380,24 @@ class _CategoryCard extends StatelessWidget {
   }
 }
 
-class _QuickActionChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
+// class _QuickActionChip extends StatelessWidget {
+//   final IconData icon;
+//   final String label;
+//   final VoidCallback onTap;
 
-  const _QuickActionChip({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+//   const _QuickActionChip({
+//     required this.icon,
+//     required this.label,
+//     required this.onTap,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    return ActionChip(
-      avatar: Icon(icon, size: 18),
-      label: Text(label),
-      onPressed: onTap,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return ActionChip(
+//       avatar: Icon(icon, size: 18),
+//       label: Text(label),
+//       onPressed: onTap,
+//       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+//     );
+//   }
+// }

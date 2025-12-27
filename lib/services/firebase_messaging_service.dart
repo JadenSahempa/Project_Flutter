@@ -25,6 +25,7 @@ class FirebaseMessagingService {
   /// Inisialisasi FCM: izin notifikasi, token, dan handler pesan.
   static Future<void> initialize() async {
     // Meminta izin notifikasi (khusus Android 13+ & iOS)
+    // ignore: unused_local_variable
     final settings = await _fcm.requestPermission(
       alert: true,
       badge: true,
@@ -36,6 +37,7 @@ class FirebaseMessagingService {
     // }
 
     // Mendapatkan FCM token device
+    // ignore: unused_local_variable
     final token = await _fcm.getToken();
     // if (kDebugMode) {
     //   print('[FCM] Token: $token');

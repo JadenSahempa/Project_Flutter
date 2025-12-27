@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 
 import '../controllers/course_lessons_controller.dart';
 import 'lesson_form_screen.dart'; // paling atas file
-import 'package:luar_sekolah_lms/features/course_module/presentation/admin/screens/course_edit_screens.dart'
-    show EditKelasScreen;
 
 class ManageLessonsScreen extends StatelessWidget {
   const ManageLessonsScreen({super.key});
@@ -167,6 +165,7 @@ class ManageLessonsScreen extends StatelessWidget {
     );
   }
 
+  // ignore: unused_element
   Future<void> _showLessonForm({
     required BuildContext context,
     required CourseLessonsController controller,
@@ -227,7 +226,8 @@ class ManageLessonsScreen extends StatelessWidget {
 
                 if (isEdit) {
                   await controller.updateLesson(
-                    id: lessonId!,
+                    id: lessonId,
+                    // !
                     title: titleC.text.trim(),
                     content: contentC.text.trim(),
                     order: order ?? 1,
