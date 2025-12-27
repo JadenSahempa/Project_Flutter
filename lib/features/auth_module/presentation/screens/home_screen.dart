@@ -577,6 +577,7 @@ class _PopularSection extends StatelessWidget {
 class _PopularCourseCard extends StatelessWidget {
   final CourseEntity course;
 
+  // ignore: unused_element_parameter
   _PopularCourseCard({super.key, required this.course});
 
   List<String> _displayTags() {
@@ -747,79 +748,79 @@ class _PopularCourseCard extends StatelessWidget {
   }
 }
 
-class _SubscriptionCard extends StatelessWidget {
-  final String imagePath;
-  final String countText;
-  final String title;
+// class _SubscriptionCard extends StatelessWidget {
+//   final String imagePath;
+//   final String countText;
+//   final String title;
 
-  const _SubscriptionCard({
-    required this.imagePath,
-    required this.countText,
-    required this.title,
-  });
+//   const _SubscriptionCard({
+//     required this.imagePath,
+//     required this.countText,
+//     required this.title,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 280,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 12,
-            offset: Offset(0, 6),
-          ),
-        ],
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(12),
-              topRight: Radius.circular(12),
-            ),
-            child: Image.asset(
-              imagePath,
-              height: 100,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.menu_book_outlined,
-                      size: 16,
-                      color: Colors.black54,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      countText,
-                      style: const TextStyle(color: Colors.black54),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       width: 280,
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12),
+//         boxShadow: const [
+//           BoxShadow(
+//             color: Color(0x14000000),
+//             blurRadius: 12,
+//             offset: Offset(0, 6),
+//           ),
+//         ],
+//         border: Border.all(color: Colors.grey.shade200),
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           ClipRRect(
+//             borderRadius: const BorderRadius.only(
+//               topLeft: Radius.circular(12),
+//               topRight: Radius.circular(12),
+//             ),
+//             child: Image.asset(
+//               imagePath,
+//               height: 100,
+//               width: double.infinity,
+//               fit: BoxFit.cover,
+//             ),
+//           ),
+//           Padding(
+//             padding: const EdgeInsets.all(12),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Row(
+//                   children: [
+//                     const Icon(
+//                       Icons.menu_book_outlined,
+//                       size: 16,
+//                       color: Colors.black54,
+//                     ),
+//                     const SizedBox(width: 6),
+//                     Text(
+//                       countText,
+//                       style: const TextStyle(color: Colors.black54),
+//                     ),
+//                   ],
+//                 ),
+//                 const SizedBox(height: 6),
+//                 Text(
+//                   title,
+//                   maxLines: 2,
+//                   overflow: TextOverflow.ellipsis,
+//                   style: const TextStyle(fontWeight: FontWeight.w700),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

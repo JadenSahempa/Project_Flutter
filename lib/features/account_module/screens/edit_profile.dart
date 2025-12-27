@@ -44,7 +44,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _gender = profile.gender;
       _jobStatus = profile.jobStatus;
       _addressC.text = profile.address ?? '';
-      _role = profile.role ?? 'student';
+      _role = profile.role
+      // ?? 'student'
+      ;
     }
   }
 

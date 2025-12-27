@@ -229,10 +229,12 @@ class AuthController extends GetxController {
       } else {
         Get.offAll(() => const MainShell());
       }
+      // ignore: unused_catch_stack
     } on FirebaseAuthException catch (e, st) {
       // print('🔥 ERROR di login(): $e');
       // print(st);
       rethrow; // lempar ke submitLogin
+      // ignore: unused_catch_stack
     } catch (e, st) {
       // print('🔥 ERROR tak terduga di login(): $e');
       // print(st);
@@ -267,6 +269,7 @@ class AuthController extends GetxController {
       await createUserProfileUseCase(profile);
 
       currentUserProfile.value = profile;
+      // ignore: unused_catch_stack
     } catch (e, st) {
       // print('🔥 ERROR di register(): $e');
       // print(st);

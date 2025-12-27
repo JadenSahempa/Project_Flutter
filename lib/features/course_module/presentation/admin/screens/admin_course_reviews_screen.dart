@@ -56,7 +56,10 @@ class _AdminCourseReviewsScreenState extends State<AdminCourseReviewsScreen> {
 
             final userName = r.userName ?? 'User';
             final rating = r.rating;
-            final comment = r.comment ?? '-';
+            // ignore: dead_code
+            final comment = r.comment
+            // ?? '-'
+            ;
 
             return Container(
               padding: const EdgeInsets.all(14),
